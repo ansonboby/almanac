@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Almanac</string>
+
+    <!-- Style Specimen screen -->
+    <string name="specimen_title">Field Ledger</string>
+    <string name="specimen_subtitle">Design system specimen</string>
+    <string name="specimen_palette_header">Palette</string>
+    <string name="specimen_type_header">Type scale</string>
+    <string name="specimen_stamp_header">Date stamp</string>
+    <string name="specimen_theme_toggle">Toggle theme</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_theme_toggle">Switch between Ink and Parchment themes</string>
+    <string name="cd_date_stamp">Date stamp for %1$s, inked in brass</string>
+</resources>

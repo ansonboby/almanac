@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Base platform theme. Almanac's real theming lives in Compose (ui/theme).
+      This XML theme only controls the pre-Compose window: launch background and
+      bars. It uses the fixed Field Ledger "ink" background, never Material You.
+    -->
+    <style name="Theme.Almanac" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/ink</item>
+        <item name="android:statusBarColor">@color/ink</item>
+        <item name="android:navigationBarColor">@color/ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

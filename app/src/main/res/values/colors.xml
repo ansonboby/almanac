@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Field Ledger palette (PRD 3.1). Mirrored in Compose Color.kt. -->
+    <color name="ink">#22261F</color>
+    <color name="parchment">#E9E4D3</color>
+    <color name="moss">#6B7A5A</color>
+    <color name="brass">#B8934A</color>
+    <color name="dusty_rose">#C08B7A</color>
+    <color name="ink_text">#1A1C16</color>
+    <color name="parchment_text">#F5F2E8</color>
+</resources>

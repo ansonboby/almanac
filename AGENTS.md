@@ -83,12 +83,31 @@ When starting a new phase, propose a short plan (Plan mode) before writing code,
 
 ## Commands
 
-_Fill in once the project is scaffolded, e.g.:_
 ```
-./gradlew assembleDebug
-./gradlew testDebugUnitTest
-./gradlew ktlintCheck
+./gradlew assembleDebug        # build the debug APK
+./gradlew testDebugUnitTest    # run JVM unit tests
+./gradlew lintDebug            # Android lint
 ```
+ktlint is not wired yet — add it in a later phase and update this block.
+
+### Build environment (this machine)
+
+The toolchain was installed under `mise` / a local Android SDK; `./gradlew` needs
+`JAVA_HOME` (JDK 17) on PATH and the SDK location (already in `local.properties`,
+which is git-ignored):
+
+```
+export JAVA_HOME=/home/anson/.local/share/mise/installs/java/temurin-17.0.19+10
+export ANDROID_HOME=/home/anson/Android/sdk
+```
+
+- **Build stack (locked in Phase 0):** AGP 8.13.2, Gradle 8.14.3 (wrapper),
+  Kotlin 2.2.21, compileSdk/targetSdk 36, minSdk 26, JDK 17.
+- We deliberately did **not** adopt AGP 9 / SDK 37 / the 2026 AndroidX libs: AGP 9's
+  new built-in-Kotlin plugin model is too new/under-documented for a stable scaffold.
+  Library versions are pinned in `gradle/libs.versions.toml` to a coherent SDK-36 set
+  (core-ktx 1.17, lifecycle 2.9.4, Compose BOM 2025.12.01, Hilt 2.57.2, Room 2.8.4).
+  Revisit when AGP 9 tooling matures.
 
 ## Gotchas
 
