@@ -12,4 +12,62 @@
     <!-- Content descriptions -->
     <string name="cd_theme_toggle">Switch between Ink and Parchment themes</string>
     <string name="cd_date_stamp">Date stamp for %1$s, inked in brass</string>
+    <string name="cd_entry_photo">Journal photo specimen</string>
+    <string name="cd_mood_glyph">Mood glyph: %1$s</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_month">Month</string>
+    <string name="nav_insights">Insights</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Today -->
+    <string name="today_eyebrow">ARCHIVAL LOG</string>
+    <string name="today_empty_title">No entries inked yet</string>
+    <string name="today_empty_body">Begin the day\'s log — a photo, a line, a mood.</string>
+    <string name="today_new_entry">New entry</string>
+
+    <!-- Month -->
+    <string name="month_eyebrow">THE STAMP SHEET</string>
+
+    <!-- New Entry -->
+    <string name="new_entry_title">New Entry</string>
+    <string name="new_entry_eyebrow">INSCRIBE</string>
+    <string name="new_entry_photo">Photo</string>
+    <string name="new_entry_text">Text</string>
+    <string name="new_entry_mood">Mood</string>
+    <string name="new_entry_capture">Capture</string>
+    <string name="new_entry_from_gallery">From gallery</string>
+    <string name="new_entry_caption_hint">A line about this specimen…</string>
+    <string name="new_entry_text_hint">Write today\'s observation…</string>
+    <string name="new_entry_tags_hint">Tags (comma separated), e.g. Aquilegia formosa</string>
+    <string name="new_entry_stamp">Stamp into Ledger</string>
+    <string name="new_entry_privacy">Your ledger remains on this device.</string>
+    <string name="new_entry_camera_permission_title">Use the camera?</string>
+    <string name="new_entry_camera_permission_body">Almanac needs the camera only to photograph specimens. Nothing leaves your phone.</string>
+    <string name="new_entry_grant">Grant</string>
+    <string name="new_entry_deny">Use gallery</string>
+
+    <!-- Entry Detail -->
+    <string name="entry_detail_edit">Edit</string>
+    <string name="entry_detail_delete">Delete</string>
+    <string name="entry_detail_delete_confirm">Delete this entry?</string>
+    <string name="entry_detail_delete_confirm_body">It will be removed from your ledger.</string>
+    <string name="entry_detail_back">Back</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">A ledger for a life</string>
+    <string name="onboarding_body">Almanac is a private, local-first daily journal — photos, notes, and mood, inked into one quiet timeline. No accounts, no cloud, no ads.</string>
+    <string name="onboarding_privacy">Your ledger remains on this device.</string>
+    <string name="onboarding_camera_title">Stamp photos of your days</string>
+    <string name="onboarding_camera_body">Capture specimens with your camera, or add them from the gallery later. Camera access is optional and only used inside the app.</string>
+    <string name="onboarding_begin">Open the ledger</string>
+    <string name="onboarding_skip">Not now</string>
+
+    <!-- Placeholders (Phase 2+) -->
+    <string name="insights_placeholder_title">Insights</string>
+    <string name="insights_placeholder_body">Mood trends and habit charts arrive in a later volume.</string>
+    <string name="settings_placeholder_title">Settings</string>
+    <string name="settings_placeholder_body">Theme, reminders, export, and privacy live here in a later volume.</string>
+    <string name="finis_opus">FINIS OPUS</string>
 </resources>

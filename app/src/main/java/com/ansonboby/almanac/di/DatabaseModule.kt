@@ -3,7 +3,7 @@ package com.ansonboby.almanac.di
 import android.content.Context
 import androidx.room.Room
 import com.ansonboby.almanac.data.local.AlmanacDatabase
-import com.ansonboby.almanac.data.local.PlaceholderDao
+import com.ansonboby.almanac.data.local.EntryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,10 +22,10 @@ object DatabaseModule {
         Room.databaseBuilder(
             context,
             AlmanacDatabase::class.java,
-            AlmanacDatabase.NAME,
-        ).build()
+            "almanac.db",
+        ).fallbackToDestructiveMigration(false).build()
 
     @Provides
-    fun providePlaceholderDao(database: AlmanacDatabase): PlaceholderDao =
-        database.placeholderDao()
+    fun provideEntryDao(database: AlmanacDatabase): EntryDao =
+        database.entryDao()
 }

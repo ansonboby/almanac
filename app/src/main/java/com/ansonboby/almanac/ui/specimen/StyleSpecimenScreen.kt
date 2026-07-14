@@ -38,6 +38,7 @@ import com.ansonboby.almanac.ui.components.DateStamp
 import com.ansonboby.almanac.ui.theme.AlmanacTheme
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
 import com.ansonboby.almanac.ui.theme.StampType
+import com.ansonboby.almanac.data.util.LocalDateUtil
 import java.time.LocalDate
 
 /**
@@ -151,13 +152,13 @@ fun StyleSpecimenScreen(
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DateStamp(date = LocalDate.of(2026, 7, 14))
+                DateStamp(epochDayLocal = LocalDateUtil.localDay(LocalDate.of(2026, 7, 14)))
                 DateStamp(
-                    date = LocalDate.of(2026, 3, 2),
+                    epochDayLocal = LocalDateUtil.localDay(LocalDate.of(2026, 3, 2)),
                     inkColor = FieldLedgerPalette.DustyRose,
                 )
                 DateStamp(
-                    date = LocalDate.of(2026, 11, 27),
+                    epochDayLocal = LocalDateUtil.localDay(LocalDate.of(2026, 11, 27)),
                     inkColor = FieldLedgerPalette.Moss,
                 )
             }
