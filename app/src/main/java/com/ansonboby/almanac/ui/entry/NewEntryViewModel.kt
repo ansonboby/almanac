@@ -45,19 +45,19 @@ class NewEntryViewModel @Inject constructor(
     val geotagEnabled: Flow<Boolean> = prefs.geotagEnabled
 
     fun setType(type: EntryType) {
-        _uiState.value = _uiState.value.copy(type = type)
+        _uiState.value = _uiState.value.copy(type = type, errorMessage = null)
     }
 
     fun setText(text: String) {
-        _uiState.value = _uiState.value.copy(text = text, type = EntryType.TEXT)
+        _uiState.value = _uiState.value.copy(text = text, type = EntryType.TEXT, errorMessage = null)
     }
 
     fun setPhoto(uri: String, caption: String = "") {
-        _uiState.value = _uiState.value.copy(photoUri = uri, caption = caption, type = EntryType.PHOTO)
+        _uiState.value = _uiState.value.copy(photoUri = uri, caption = caption, type = EntryType.PHOTO, errorMessage = null)
     }
 
     fun setMood(score: Int) {
-        _uiState.value = _uiState.value.copy(moodScore = score, type = EntryType.MOOD)
+        _uiState.value = _uiState.value.copy(moodScore = score, type = EntryType.MOOD, errorMessage = null)
     }
 
     fun setTags(tags: String) {
@@ -69,7 +69,7 @@ class NewEntryViewModel @Inject constructor(
     }
 
     fun clearPhoto() {
-        _uiState.value = _uiState.value.copy(photoUri = null, caption = "")
+        _uiState.value = _uiState.value.copy(photoUri = null, caption = "", errorMessage = null)
     }
 
     fun clearError() {
@@ -89,6 +89,7 @@ class NewEntryViewModel @Inject constructor(
 
     /** Fire-and-forget geotag capture using the ViewModel's own scope. */
     fun requestGeoTag() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
         viewModelScope.launch { captureLocation() }
     }
 
