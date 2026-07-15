@@ -73,6 +73,9 @@ class EntryRepository @Inject constructor(
     suspend fun update(entry: Entry) = dao.update(entry)
 
     suspend fun delete(entry: Entry) = dao.delete(entry)
+
+    /** Remove all entries (purge local ledger). */
+    suspend fun deleteAll() = dao.deleteAll()
 }
 
 /** Pure filter used by [EntryRepository.dayEntries]; unit-testable on its own. */

@@ -74,6 +74,12 @@ class HabitRepository @Inject constructor(
 
     suspend fun archiveHabit(habit: Habit, archived: Boolean = true) =
         dao.updateHabit(habit.copy(archived = archived))
+
+    /** Remove all habits + logs (purge local ledger). */
+    suspend fun deleteAll() {
+        dao.deleteAllLogs()
+        dao.deleteAllHabits()
+    }
 }
 
 /**

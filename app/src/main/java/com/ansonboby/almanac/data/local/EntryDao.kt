@@ -50,6 +50,10 @@ interface EntryDao {
     @Query("SELECT COUNT(*) FROM entries WHERE deleted = 0")
     suspend fun countLive(): Int
 
+    /** Wipe every entry (purge). */
+    @Query("DELETE FROM entries")
+    suspend fun deleteAll()
+
     /** Raw live entries in a day range — backs month search/filter. */
     @Query(
         "SELECT * FROM entries WHERE deleted = 0 AND epoch_day_local BETWEEN :start AND :end " +

@@ -5,10 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ansonboby.almanac.data.datastore.PreferencesManager
 import com.ansonboby.almanac.ui.navigation.AlmanacNavHost
@@ -33,8 +30,9 @@ class MainActivity : ComponentActivity() {
             val themeMode by preferences.themeMode
                 .collectAsStateWithLifecycle(initialValue = 1)
 
-            // 1 = Ink (dark), 2 = Parchment (light). Default to Ink (PRD 3.1).
-            var darkTheme by remember { mutableStateOf(themeMode != 2) }
+            // Theme is authoritative from preferences (Settings is the source of
+            // truth). 1 = Ink (dark), 2 = Parchment (light). Default to Ink.
+            val darkTheme = themeMode != 2
             val scope = rememberCoroutineScope()
 
             AlmanacTheme(darkTheme = darkTheme) {
@@ -42,9 +40,7 @@ class MainActivity : ComponentActivity() {
                     AlmanacNavHost(
                         darkTheme = darkTheme,
                         onToggleTheme = {
-                            darkTheme = !darkTheme
-                            val next = if (darkTheme) 1 else 2
-                            scope.launch { preferences.setThemeMode(next) }
+                            scope.launch { preferences.setThemeMode(if (darkTheme) 2 else 1) }
                         },
                     )
                 } else {
@@ -52,7 +48,9 @@ class MainActivity : ComponentActivity() {
                         onFinish = {
                             scope.launch { preferences.setOnboardingComplete(true) }
                         },
-                        onToggleTheme = { darkTheme = !darkTheme },
+                        onToggleTheme = {
+                            scope.launch { preferences.setThemeMode(if (darkTheme) 2 else 1) }
+                        },
                     )
                 }
             }

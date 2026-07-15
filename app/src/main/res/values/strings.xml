@@ -112,8 +112,50 @@
     <!-- Misc -->
     <string name="colophon">Field Ledger — a quiet record of days.</string>
 
-    <!-- Placeholders (Phase 2+) -->
-    <string name="settings_placeholder_title">Settings</string>
-    <string name="settings_placeholder_body">Theme, reminders, export, and privacy live here in a later volume.</string>
+    <!-- Settings (Phase 3) -->
+    <string name="settings_eyebrow">THE LEDGER\'S KEEPING</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_body">The Field Ledger wears Ink by night, Parchment by day.</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_geotag">Automatic geotagging</string>
+    <string name="settings_geotag_body">Stamp the place of each entry. Asked for the first time you add a location; never shared.</string>
+    <string name="settings_reminders">Reminders</string>
+    <string name="settings_reminder_toggle">End-of-day reminder</string>
+    <string name="settings_reminder_body">A quiet nudge to ink the day\'s log.</string>
+    <string name="settings_reminder_time">Reminder time</string>
+    <string name="settings_data">Data management</string>
+    <string name="settings_backup">Backup Ledger</string>
+    <string name="settings_backup_body">Encrypted archive of your entries and photos.</string>
+    <string name="settings_restore">Restore Ledger</string>
+    <string name="settings_restore_body">Replace the local ledger from a backup file.</string>
+    <string name="settings_export_pdf">Export as Field Report</string>
+    <string name="settings_export_pdf_body">A printable PDF of the ledger.</string>
+    <string name="settings_purge">Purge Local Ledger</string>
+    <string name="settings_purge_body">Erase all entries, photos, and habits from this device.</string>
+    <string name="settings_purge_confirm_title">Purge the ledger?</string>
+    <string name="settings_purge_confirm_body">This erases everything on this device. It cannot be undone.</string>
+    <string name="settings_purge_confirm">Purge</string>
+    <string name="cancel">Cancel</string>
+    <string name="theme_ink">Ink</string>
+    <string name="theme_parchment">Parchment</string>
+
+    <!-- Reminders -->
+    <string name="reminder_title">Ink the day?</string>
+    <string name="reminder_body">A line, a photo, a mood — close the day in your ledger.</string>
+    <string name="reminder_channel_name">Ledger reminders</string>
+    <string name="reminder_channel_desc">Daily nudge to write in the Almanac.</string>
+
+    <!-- Export -->
+    <string name="export_pdf_title">Field Report</string>
+    <string name="export_pdf_generated">Generated %1$s</string>
+    <string name="export_pdf_empty">The ledger is empty — nothing yet to report.</string>
+
+    <!-- New Entry: location -->
+    <string name="new_entry_location">Location</string>
+    <string name="new_entry_location_hint">No place stamped</string>
+    <string name="new_entry_location_add">Add place</string>
+    <string name="new_entry_location_clear">Clear</string>
+
     <string name="finis_opus">FINIS OPUS</string>
 </resources>

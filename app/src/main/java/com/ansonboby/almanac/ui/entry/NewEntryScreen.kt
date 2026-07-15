@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +88,13 @@ fun NewEntryScreen(
         else galleryLauncher.launch("image/*")
     }
 
+    val geotagEnabled by viewModel.geotagEnabled.collectAsStateWithLifecycle(initialValue = false)
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) viewModel.requestGeoTag()
+    }
+
     fun requestCamera() {
         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
@@ -122,7 +130,16 @@ fun NewEntryScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 EntryTypeChip(stringResource(R.string.new_entry_photo), state.type == EntryType.PHOTO) { requestCamera() }
                 EntryTypeChip(stringResource(R.string.new_entry_text), state.type == EntryType.TEXT) { viewModel.setType(EntryType.TEXT) }
-                EntryTypeChip(stringResource(R.string.new_entry_mood), state.type == EntryType.MOOD) { viewModel.setType(EntryType.MOOD) }
+                EntryTypeChip(stringResource(R.string.new_entry_mood), state.type == EntryType.MOOD) { viewModel.setMood(state.moodScore ?: 0) }
+            }
+
+            // Optional geotag (opt-in, requested contextually)
+            if (geotagEnabled) {
+                GeoTagRow(
+                    name = state.geoTag?.name,
+                    onAdd = { locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
+                    onClear = { viewModel.setGeoTag(null) },
+                )
             }
 
             // Content by type
@@ -210,6 +227,30 @@ private fun EntryTypeChip(label: String, selected: Boolean, onClick: () -> Unit)
             label,
             style = StampType.counter,
             color = if (selected) FieldLedgerPalette.Brass else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun GeoTagRow(name: String?, onAdd: () -> Unit, onClear: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().border(1.dp, FieldLedgerPalette.Moss).padding(12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f).padding(end = 12.dp)) {
+            Text(stringResource(R.string.new_entry_location), style = AlmanacTypography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                name ?: stringResource(R.string.new_entry_location_hint),
+                style = StampType.metadata,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text(
+            if (name != null) stringResource(R.string.new_entry_location_clear) else stringResource(R.string.new_entry_location_add),
+            style = StampType.counter,
+            color = FieldLedgerPalette.Brass,
+            modifier = Modifier.clickable { if (name != null) onClear() else onAdd() },
         )
     }
 }

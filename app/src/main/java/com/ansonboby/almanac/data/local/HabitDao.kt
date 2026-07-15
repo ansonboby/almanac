@@ -48,6 +48,13 @@ interface HabitDao {
     @Query("SELECT DISTINCT habit_id FROM habit_logs WHERE epoch_day_local = :day")
     suspend fun loggedIdsForDay(day: Int): List<Long>
 
+    /** Wipe every habit + log (purge). */
+    @Query("DELETE FROM habit_logs")
+    suspend fun deleteAllLogs()
+
+    @Query("DELETE FROM habits")
+    suspend fun deleteAllHabits()
+
     @Query(
         "SELECT epoch_day_local FROM habit_logs " +
             "WHERE habit_id = :habitId AND epoch_day_local BETWEEN :start AND :end",

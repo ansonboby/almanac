@@ -2,13 +2,18 @@ package com.ansonboby.almanac.ui.entry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ansonboby.almanac.data.datastore.PreferencesManager
 import com.ansonboby.almanac.data.local.Entry
 import com.ansonboby.almanac.data.local.EntryType
+import com.ansonboby.almanac.data.location.GeoTag
+import com.ansonboby.almanac.data.location.LocationRepository
 import com.ansonboby.almanac.data.repository.EntryRepository
 import com.ansonboby.almanac.data.util.LocalDateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,6 +24,7 @@ data class NewEntryUiState(
     val caption: String = "",
     val moodScore: Int? = null,
     val tags: String = "",
+    val geoTag: GeoTag? = null,
     val stampingIn: Boolean = false,
     val saved: Boolean = false,
 )
@@ -26,10 +32,14 @@ data class NewEntryUiState(
 @HiltViewModel
 class NewEntryViewModel @Inject constructor(
     private val repository: EntryRepository,
+    private val locationRepository: LocationRepository,
+    private val prefs: PreferencesManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewEntryUiState())
     val uiState: StateFlow<NewEntryUiState> = _uiState
+
+    val geotagEnabled: Flow<Boolean> = prefs.geotagEnabled
 
     fun setType(type: EntryType) {
         _uiState.value = _uiState.value.copy(type = type)
@@ -51,8 +61,24 @@ class NewEntryViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(tags = tags)
     }
 
+    fun setGeoTag(tag: GeoTag?) {
+        _uiState.value = _uiState.value.copy(geoTag = tag)
+    }
+
     fun clearPhoto() {
         _uiState.value = _uiState.value.copy(photoUri = null, caption = "")
+    }
+
+    /** Capture the current place (opt-in geotag). Returns true if a tag was set. */
+    suspend fun captureLocation(): Boolean {
+        val tag = locationRepository.currentGeoTag()
+        _uiState.value = _uiState.value.copy(geoTag = tag)
+        return tag != null
+    }
+
+    /** Fire-and-forget geotag capture using the ViewModel's own scope. */
+    fun requestGeoTag() {
+        viewModelScope.launch { captureLocation() }
     }
 
     /** Persist immediately (PRD 7: no data loss) — "stamp into ledger". */
@@ -73,6 +99,9 @@ class NewEntryViewModel @Inject constructor(
                 textContent = s.text.takeIf { it.isNotBlank() },
                 photoUri = s.photoUri,
                 moodScore = s.moodScore,
+                locationName = s.geoTag?.name,
+                lat = s.geoTag?.lat,
+                lng = s.geoTag?.lng,
                 tags = s.tags.takeIf { it.isNotBlank() },
             )
             val id = repository.create(entry)

@@ -86,6 +86,11 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
 
+    // Phase 3: location check-ins, reminders, encrypted backup
+    implementation(libs.google.play.services.location)
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.security.crypto)
+
     debugImplementation(libs.androidx.ui.tooling)
 
     testImplementation(libs.junit)
