@@ -2,6 +2,7 @@ package com.ansonboby.almanac.ui.habit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -34,6 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -91,7 +99,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel()) {
         },
     ) { padding ->
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding).padding(horizontal = 12.dp),
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
         ) {
             items(state.habits, key = { it.habit.id }) { item ->
                 HabitRow(
@@ -202,20 +210,32 @@ private fun HabitRow(
     Row(
         Modifier.fillMaxWidth()
             .clickable(onClick = onEdit)
-            .padding(vertical = 12.dp),
+            .padding(vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Stamp-style checkbox: a square that fills with the habit's accent when done.
         Box(
             Modifier
-                .size(26.dp)
-                .border(1.5.dp, tint, RoundedCornerShape(0.dp))
+                .size(30.dp)
+                .clip(CircleShape)
+                .border(1.5.dp, tint, CircleShape)
                 .clickable(onClick = onToggle)
-                .background(if (item.isDoneToday) tint else androidx.compose.ui.graphics.Color.Transparent)
-                .padding(5.dp),
+                .background(if (item.isDoneToday) tint else Color.Transparent),
+            contentAlignment = Alignment.Center,
         ) {
             if (item.isDoneToday) {
-                Box(Modifier.fillMaxSize().background(FieldLedgerPalette.Ink))
+                Canvas(Modifier.size(18.dp)) {
+                    val stroke = 2.2.dp.toPx()
+                    val check = Path().apply {
+                        moveTo(size.width * 0.22f, size.height * 0.54f)
+                        lineTo(size.width * 0.43f, size.height * 0.74f)
+                        lineTo(size.width * 0.80f, size.height * 0.30f)
+                    }
+                    drawPath(
+                        check,
+                        color = FieldLedgerPalette.ParchmentText,
+                        style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                    )
+                }
             }
         }
         Column(Modifier.weight(1f).padding(start = 14.dp)) {
@@ -233,9 +253,9 @@ private fun HabitRow(
             )
         }
         Text(
-            text = "×${item.streak}",
+            text = "${item.streak.toString().padStart(2, '0')}d",
             style = StampType.counter,
-            color = tint,
+            color = FieldLedgerPalette.Moss,
             modifier = Modifier.clickable(onClick = onArchive).padding(start = 10.dp),
         )
     }

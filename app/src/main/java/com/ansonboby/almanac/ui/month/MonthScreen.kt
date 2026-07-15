@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -17,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -95,28 +102,51 @@ fun MonthScreen(
                 filter = state.filter,
                 onQueryChange = viewModel::setQuery,
                 onFilterChange = viewModel::setFilter,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
             )
             }
         },
     ) { padding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxSize().padding(padding).padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 20.dp),
         ) {
-            items((0 until leadingBlanks).toList()) { Box(Modifier) }
-            items((1..daysInMonth).toList()) { dom ->
-                val epochDay = LocalDateUtil.localDay(
-                    firstOfMonth.withDayOfMonth(dom),
-                )
-                val summary = state.summaries[epochDay]
-                DayCell(
-                    epochDay = epochDay,
-                    summary = summary,
-                    onClick = { onOpenDay(epochDay) },
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                listOf("S", "M", "T", "W", "T", "F", "S").forEach { header ->
+                    Text(
+                        text = header,
+                        style = StampType.metadata,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items((0 until leadingBlanks).toList()) { Box(Modifier) }
+                items((1..daysInMonth).toList()) { dom ->
+                    val epochDay = LocalDateUtil.localDay(
+                        firstOfMonth.withDayOfMonth(dom),
+                    )
+                    val summary = state.summaries[epochDay]
+                    DayCell(
+                        epochDay = epochDay,
+                        summary = summary,
+                        onClick = { onOpenDay(epochDay) },
+                    )
+                }
             }
         }
     }
@@ -131,8 +161,7 @@ private fun DayCell(
     val hasEntry = summary != null
     val mood = summary?.moodScore?.let { Mood.fromScore(it) }
     val ink = when {
-        !hasEntry -> FieldLedgerPalette.Moss.copy(alpha = 0.28f)
-        mood != null -> mood.tint
+        !hasEntry -> MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
         else -> FieldLedgerPalette.Brass
     }
     Column(
@@ -141,9 +170,15 @@ private fun DayCell(
             .clickable { onClick() }
             .padding(2.dp),
     ) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(if (hasEntry && mood != null) mood.tint.copy(alpha = 0.14f) else Color.Transparent),
+            contentAlignment = Alignment.Center,
+        ) {
             DateStamp(epochDayLocal = epochDay, size = 44.dp, inkColor = ink)
         }
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = LocalDateUtil.dayOfMonth(epochDay).toString(),
             style = StampType.metadata,

@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -40,6 +42,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -48,6 +54,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ansonboby.almanac.R
 import com.ansonboby.almanac.data.local.EntryType
 import com.ansonboby.almanac.data.util.FileStorage
+import com.ansonboby.almanac.data.util.LocalDateUtil
+import com.ansonboby.almanac.ui.components.DateStamp
 import com.ansonboby.almanac.ui.components.Mood
 import com.ansonboby.almanac.ui.components.MoodWeatherGlyph
 import com.ansonboby.almanac.ui.components.ThemeToggleChip
@@ -191,7 +199,8 @@ fun NewEntryScreen(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .background(if (canStamp) FieldLedgerPalette.Brass else FieldLedgerPalette.Moss.copy(alpha = 0.3f))
+                    .shadow(4.dp, RoundedCornerShape(0.dp))
+                    .background(if (canStamp) FieldLedgerPalette.Moss else FieldLedgerPalette.Moss.copy(alpha = 0.3f))
                     .clickable(enabled = canStamp) {
                         viewModel.stampIntoLedger { onDone() }
                     }
@@ -199,9 +208,9 @@ fun NewEntryScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = stringResource(R.string.new_entry_stamp),
+                    text = stringResource(R.string.new_entry_stamp).uppercase(),
                     style = StampType.counter,
-                    color = if (canStamp) FieldLedgerPalette.Ink else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (canStamp) FieldLedgerPalette.ParchmentText else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -306,14 +315,33 @@ private fun PhotoPreview(
     onRetake: () -> Unit,
     onGallery: () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        androidx.compose.foundation.Image(
-            painter = coil3.compose.rememberAsyncImagePainter(uri),
-            contentDescription = stringResource(R.string.cd_entry_photo),
-            modifier = Modifier.fillMaxWidth().height(220.dp)
-                .background(FieldLedgerPalette.Parchment).padding(6.dp),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-        )
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(Modifier.rotate(-2f)) {
+                Box(
+                    Modifier
+                        .shadow(4.dp, RoundedCornerShape(0.dp))
+                        .background(FieldLedgerPalette.Parchment)
+                        .padding(12.dp),
+                ) {
+                    androidx.compose.foundation.Image(
+                        painter = coil3.compose.rememberAsyncImagePainter(uri),
+                        contentDescription = stringResource(R.string.cd_entry_photo),
+                        modifier = Modifier.width(240.dp).aspectRatio(4f / 5f)
+                            .background(FieldLedgerPalette.Parchment),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    )
+                }
+            }
+        }
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+            DateStamp(
+                epochDayLocal = LocalDateUtil.todayLocalDay(),
+                size = 64.dp,
+                inkColor = FieldLedgerPalette.Brass,
+                modifier = Modifier.alpha(0.8f),
+            )
+        }
         LedgerTextField(value = caption, onValueChange = onCaptionChange, hint = stringResource(R.string.new_entry_caption_hint))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             EntryTypeChip(stringResource(R.string.new_entry_capture), false) { onRetake() }

@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
@@ -100,7 +101,7 @@ fun EntryRow(
                 )
                 entry.textContent != null -> Text(
                     text = entry.textContent!!,
-                    style = AlmanacTypography.bodyMedium,
+                    style = AlmanacTypography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 entry.moodScore != null -> {
@@ -112,7 +113,8 @@ fun EntryRow(
                         }
                         Text(
                             text = mood?.label ?: "Mood",
-                            style = AlmanacTypography.labelLarge,
+                            style = AlmanacTypography.bodyLarge,
+                            fontStyle = FontStyle.Italic,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }

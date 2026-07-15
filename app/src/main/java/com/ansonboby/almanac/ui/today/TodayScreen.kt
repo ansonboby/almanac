@@ -1,14 +1,18 @@
 package com.ansonboby.almanac.ui.today
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,11 +59,13 @@ fun TodayScreen(
                                 style = StampType.metadata,
                                 color = FieldLedgerPalette.Brass,
                             )
+                            Spacer(Modifier.height(4.dp))
                             Text(
                                 text = "Today",
                                 style = AlmanacTypography.displaySmall,
                                 color = MaterialTheme.colorScheme.onBackground,
                             )
+                            Spacer(Modifier.height(6.dp))
                             Text(
                                 text = dayLabel,
                                 style = AlmanacTypography.bodyMedium,
@@ -76,20 +83,7 @@ fun TodayScreen(
                     filter = state.filter,
                     onQueryChange = viewModel::setQuery,
                     onFilterChange = viewModel::setFilter,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                )
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNewEntry,
-                containerColor = FieldLedgerPalette.Brass,
-                contentColor = FieldLedgerPalette.Ink,
-            ) {
-                Text(
-                    text = stringResource(R.string.today_new_entry),
-                    style = StampType.counter,
-                    modifier = Modifier.padding(horizontal = 14.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 )
             }
         },
@@ -110,15 +104,58 @@ fun TodayScreen(
                     style = AlmanacTypography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Spacer(Modifier.height(24.dp))
+                AddEntryAffordance(
+                    onNewEntry = onNewEntry,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
             }
         } else {
             LazyColumn(
-                Modifier.fillMaxWidth().padding(padding).padding(horizontal = 12.dp),
+                Modifier.fillMaxWidth().padding(padding).padding(horizontal = 16.dp),
             ) {
                 items(state.entries, key = { it.id }) { entry ->
                     EntryRow(entry = entry, onClick = { onOpenEntry(entry.id) })
                 }
+                item {
+                    Spacer(Modifier.height(8.dp))
+                    AddEntryAffordance(
+                        onNewEntry = onNewEntry,
+                        modifier = Modifier.padding(vertical = 16.dp),
+                    )
+                }
             }
         }
+    }
+}
+
+/**
+ * Quiet "add a new line…" affordance (HTML reference: a ghost inline link with a
+ * moss [add] glyph, not a filled/elevated FAB — keeps the ledger's boldness on
+ * the date stamp alone).
+ */
+@Composable
+private fun AddEntryAffordance(
+    onNewEntry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onNewEntry),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "+",
+            style = StampType.counter,
+            color = FieldLedgerPalette.Moss,
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = stringResource(R.string.today_new_entry),
+            style = AlmanacTypography.bodyMedium,
+            fontStyle = FontStyle.Italic,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+        )
     }
 }
