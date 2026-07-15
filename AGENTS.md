@@ -57,6 +57,18 @@ Keep Composables pure/stateless where possible; hoist state to ViewModels. Don't
 - Palette, type pairing (Fraunces / Inter / IBM Plex Mono), and the date-stamp signature element are specified in `PRD.md` and are not up for reinterpretation without asking first.
 - Mono type (IBM Plex Mono) is reserved for stamped metadata only (dates, coordinates, counters) — don't use it as a general UI font.
 - The date-stamp is the one signature flourish. Don't add competing decorative motifs elsewhere; keep surrounding UI quiet per the "spend boldness in one place" principle in PRD §3.
+- **Exception (added post Stitch Round 1):** Habit completion marks use `CircleShape` on purpose — a small filled dot/ring reads as a stamp impression, not a generic checkbox. This is the one place a shape other than the 0dp sharp corner is allowed; don't extend that exception to other controls.
+
+## Stitch Round 1 reconciliation notes
+
+After a Stitch-generated design pass (per-screen references in `/home/anson/Downloads/stitch_almanac_design_system/`), these reconciliations were made against `field_ledger/DESIGN.md`:
+
+- **Typography:** we kept **Fraunces** for display, not Newsreader. Fraunces is in the PRD/DESIGN.md token table; Newsreader was a Stitch suggestion that diverged. Keep Fraunces.
+- **No avatar in TopAppBar.** Stitch's Today mockup shows a circular avatar; the PRD never specified one and it adds a decorative motif competing with the date-stamp. Drop it.
+- **Settings layout:** Stitch generated a settings screen with a different structure than what we built (vertical scroll with Appearance / Data / Colophon sections). Use our structure; the Stitch screen is a reference for spacing/typography only.
+- **Month mood-tinting:** Stitch's month grid shows mood-tinted cells. Our implementation uses brass borders + a subtle mood wash. Acceptable — keep ours, but ensure the mood wash stays subtle (not a full fill).
+- **Open product question:** Stitch's direction leans toward an "observation" log (notes about the world) while the PRD frames entries as personal mood/life logging. Keep the personal-journal voice for now; flag this as an open product decision, not a code change.
+- **Copy voice:** keep the established tone — "Stamp into Ledger", `№ 442` counters, italic day tags, colophon line. Don't flatten to generic Material copy.
 
 ## MCP Servers Available
 
