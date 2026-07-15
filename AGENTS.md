@@ -92,6 +92,8 @@ When starting a new phase, propose a short plan (Plan mode) before writing code,
 
 - ViewModel and Repository logic should have JUnit + Turbine tests for Flow-emitting functions.
 - Don't write UI snapshot tests unless asked — prioritize logic coverage first.
+- **When investigating a bug reported from a real device or emulator run**, first rule out a stale install (`adb uninstall <package>` then a fresh install of the current build) before deep-diving into source — a Phase 3 "crash" briefly looked real but was actually an old APK still on the device. Confirm the reproduction is against current code before spending time on root-causing.
+- **The Photo entry flow is the one path that has never been confirmed end-to-end** (pick → `FileStorage.importUri` → Room save → Coil load of the private-storage path → "pressed specimen" render on Today). Automated UI drivers (uiautomator) can't reliably operate the DocumentsUI `GetContent` picker, so the trustworthy close is a real-device tap-through: fresh-install, tap Photo, take/pick a real image, Stamp into Ledger, and confirm it renders mat-bordered + slightly rotated (not full-bleed/broken/blank). Don't claim the photo flow works off "shares the verified save path" alone — that only rules out the one already-found bug class.
 
 ## Commands
 
