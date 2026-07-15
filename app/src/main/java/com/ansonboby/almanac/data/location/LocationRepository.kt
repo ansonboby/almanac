@@ -4,9 +4,9 @@ import android.content.Context
 import android.location.Geocoder
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.Tasks
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class LocationRepository @Inject constructor(
 
     suspend fun currentGeoTag(): GeoTag? = withContext(Dispatchers.IO) {
         try {
-            val loc = Tasks.await(client.lastLocation) ?: return@withContext null
+            val loc = client.lastLocation.await() ?: return@withContext null
             if (loc.latitude == 0.0 && loc.longitude == 0.0) return@withContext null
             val name = reverseGeocode(loc.latitude, loc.longitude)
             GeoTag(lat = loc.latitude, lng = loc.longitude, name = name)

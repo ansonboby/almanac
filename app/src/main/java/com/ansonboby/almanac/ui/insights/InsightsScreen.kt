@@ -105,18 +105,26 @@ fun InsightsScreen(
             ) {
                 item { SectionHeader(stringResource(R.string.insights_mood)) }
                 item {
-                    MoodTrendChart(
-                        mood = state.mood,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    if (state.mood.count { it.count > 0 } < 2) {
+                        InsightEmptyState(stringResource(R.string.insights_mood_empty))
+                    } else {
+                        MoodTrendChart(
+                            mood = state.mood,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
 
                 item { SectionHeader(stringResource(R.string.insights_frequency)) }
                 item {
-                    FrequencyChart(
-                        frequency = state.frequency,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    if (state.frequency.none { it.count > 0 }) {
+                        InsightEmptyState(stringResource(R.string.insights_frequency_empty))
+                    } else {
+                        FrequencyChart(
+                            frequency = state.frequency,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
 
                 item { SectionHeader(stringResource(R.string.insights_habits)) }
@@ -149,6 +157,16 @@ fun InsightsScreen(
             }
         }
     }
+}
+
+@Composable
+private fun InsightEmptyState(text: String) {
+    Text(
+        text = text,
+        style = AlmanacTypography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+    )
 }
 
 @Composable

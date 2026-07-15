@@ -48,6 +48,10 @@ object LocalDateUtil {
         }
     }
 
+    /** "July 16, 2026" — full written date for headers/subtitles. */
+    fun fullDate(epochDayLocal: Int): String =
+        toLocalDate(epochDayLocal).format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
+
     fun monthLabel(epochDayLocal: Int): String =
         toLocalDate(epochDayLocal).format(DateTimeFormatter.ofPattern("MMMM yyyy"))
 

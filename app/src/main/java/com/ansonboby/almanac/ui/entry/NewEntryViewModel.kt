@@ -13,12 +13,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class NewEntryUiState(
-    val type: EntryType? = null,
+    val type: EntryType? = EntryType.TEXT,
     val text: String = "",
     val photoUri: String? = null,
     val caption: String = "",
@@ -27,6 +29,7 @@ data class NewEntryUiState(
     val geoTag: GeoTag? = null,
     val stampingIn: Boolean = false,
     val saved: Boolean = false,
+    val errorMessage: String? = null,
 )
 
 @HiltViewModel
@@ -69,9 +72,17 @@ class NewEntryViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(photoUri = null, caption = "")
     }
 
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
     /** Capture the current place (opt-in geotag). Returns true if a tag was set. */
     suspend fun captureLocation(): Boolean {
-        val tag = locationRepository.currentGeoTag()
+        val tag = try {
+            locationRepository.currentGeoTag()
+        } catch (_: Exception) {
+            null
+        }
         _uiState.value = _uiState.value.copy(geoTag = tag)
         return tag != null
     }
@@ -85,7 +96,7 @@ class NewEntryViewModel @Inject constructor(
     fun stampIntoLedger(onDone: (Long) -> Unit) {
         val s = _uiState.value
         if (s.type == null && s.text.isBlank() && s.photoUri == null && s.moodScore == null) return
-        _uiState.value = s.copy(stampingIn = true)
+        _uiState.value = s.copy(stampingIn = true, errorMessage = null)
         viewModelScope.launch {
             val type = s.type ?: when {
                 s.photoUri != null -> EntryType.PHOTO
@@ -104,9 +115,13 @@ class NewEntryViewModel @Inject constructor(
                 lng = s.geoTag?.lng,
                 tags = s.tags.takeIf { it.isNotBlank() },
             )
-            val id = repository.create(entry)
-            _uiState.value = _uiState.value.copy(stampingIn = false, saved = true)
-            onDone(id)
+            try {
+                val id = withContext(Dispatchers.IO) { repository.create(entry) }
+                _uiState.value = _uiState.value.copy(stampingIn = false, saved = true)
+                onDone(id)
+            } catch (_: Exception) {
+                _uiState.value = _uiState.value.copy(stampingIn = false, errorMessage = "SAVE FAILED — TRY AGAIN")
+            }
         }
     }
 }

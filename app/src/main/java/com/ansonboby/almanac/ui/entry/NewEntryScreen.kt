@@ -11,6 +11,10 @@ import androidx.camera.core.Preview
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -78,6 +84,9 @@ fun NewEntryScreen(
     var cameraError by remember { mutableStateOf<String?>(null) }
     val imageCapture = remember { ImageCapture.Builder().build() }
     val executor = remember { Executors.newSingleThreadExecutor() }
+    val stampScope = rememberCoroutineScope()
+    val stampScale = remember { Animatable(1f) }
+    val stampRotation = remember { Animatable(0f) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent(),
@@ -194,14 +203,49 @@ fun NewEntryScreen(
                 Text(cameraError!!, color = FieldLedgerPalette.DustyRose, style = AlmanacTypography.bodySmall)
             }
 
+            if (state.errorMessage != null) {
+                Text(
+                    text = state.errorMessage!!,
+                    color = FieldLedgerPalette.DustyRose,
+                    style = StampType.counter,
+                )
+            }
+
             // Stamp into Ledger
             val canStamp = state.type != null || state.text.isNotBlank() || state.photoUri != null || state.moodScore != null
             Box(
                 Modifier
                     .fillMaxWidth()
+                    .graphicsLayer {
+                        scaleX = stampScale.value
+                        scaleY = stampScale.value
+                        rotationZ = stampRotation.value
+                    }
                     .shadow(4.dp, RoundedCornerShape(0.dp))
                     .background(if (canStamp) FieldLedgerPalette.Moss else FieldLedgerPalette.Moss.copy(alpha = 0.3f))
                     .clickable(enabled = canStamp) {
+                        stampScope.launch {
+                            launch {
+                                stampScale.animateTo(0.92f, animationSpec = tween(90))
+                                stampScale.animateTo(
+                                    1f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium,
+                                    ),
+                                )
+                            }
+                            launch {
+                                stampRotation.animateTo(-2.5f, animationSpec = tween(90))
+                                stampRotation.animateTo(
+                                    0f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium,
+                                    ),
+                                )
+                            }
+                        }
                         viewModel.stampIntoLedger { onDone() }
                     }
                     .padding(vertical = 16.dp),

@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

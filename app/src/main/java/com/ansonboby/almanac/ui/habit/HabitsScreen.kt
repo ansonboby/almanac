@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -19,8 +22,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -43,6 +46,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -84,19 +88,6 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel()) {
                 ),
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = viewModel::openNew,
-                containerColor = FieldLedgerPalette.Brass,
-                contentColor = FieldLedgerPalette.Ink,
-            ) {
-                Text(
-                    text = stringResource(R.string.habits_new),
-                    style = StampType.counter,
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                )
-            }
-        },
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
@@ -115,9 +106,16 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel()) {
                         text = stringResource(R.string.habits_empty),
                         style = AlmanacTypography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(24.dp),
+                        modifier = Modifier.padding(vertical = 24.dp),
                     )
                 }
+            }
+
+            item {
+                AddHabitAffordance(
+                    onNewHabit = viewModel::openNew,
+                    modifier = Modifier.padding(vertical = 16.dp),
+                )
             }
 
             if (state.archived.isNotEmpty()) {
@@ -198,6 +196,37 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel()) {
     }
 }
 
+/**
+ * Quiet inline "add a habit" affordance — matches Today's [AddEntryAffordance]
+ * (moss "+" glyph + italic ghost label), replacing the filled/elevated FAB so the
+ * ledger's boldness stays on the date stamp alone.
+ */
+@Composable
+private fun AddHabitAffordance(
+    onNewHabit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onNewHabit),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "+",
+            style = StampType.counter,
+            color = FieldLedgerPalette.Moss,
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = stringResource(R.string.habits_new),
+            style = AlmanacTypography.bodyMedium,
+            fontStyle = FontStyle.Italic,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+        )
+    }
+}
+
 @Composable
 private fun HabitRow(
     item: HabitWithStatus,
@@ -262,7 +291,7 @@ private fun HabitRow(
     HorizontalDivider(color = FieldLedgerPalette.Moss.copy(alpha = 0.4f), thickness = 1.dp)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun HabitEditSheet(
     state: com.ansonboby.almanac.ui.habit.HabitsUiState,
@@ -309,13 +338,19 @@ private fun HabitEditSheet(
             )
 
             Text(stringResource(R.string.habits_frequency), style = StampType.counter, color = FieldLedgerPalette.Moss, modifier = Modifier.padding(top = 16.dp))
-            Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 freqs.forEach { f ->
                     val selected = f.key == state.frequencyKey
                     Text(
                         text = stringResource(f.labelRes),
                         style = StampType.counter,
                         color = if (selected) FieldLedgerPalette.Brass else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
                         modifier = Modifier
                             .border(1.dp, if (selected) FieldLedgerPalette.Brass else FieldLedgerPalette.Moss, RoundedCornerShape(0.dp))
                             .clickable { onFrequencyChange(f.key) }

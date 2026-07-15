@@ -44,7 +44,7 @@ fun TodayScreen(
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val dayLabel = LocalDateUtil.dayLabel(state.day)
+    val dayLabel = LocalDateUtil.fullDate(state.day)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,

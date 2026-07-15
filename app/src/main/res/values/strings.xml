@@ -72,6 +72,8 @@
     <string name="insights_frequency">Entry frequency</string>
     <string name="insights_habits">Habit consistency</string>
     <string name="insights_habits_empty">Add a habit to see its consistency.</string>
+    <string name="insights_mood_empty">Not enough mood readings yet.</string>
+    <string name="insights_frequency_empty">No entries inked yet — the ledger fills as you log.</string>
 
     <!-- Habits -->
     <string name="habits_eyebrow">DAILY OBSERVANCES</string>

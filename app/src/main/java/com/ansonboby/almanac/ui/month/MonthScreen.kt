@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -21,6 +24,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
@@ -164,16 +170,34 @@ private fun DayCell(
         !hasEntry -> MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
         else -> FieldLedgerPalette.Brass
     }
+    val scope = rememberCoroutineScope()
+    val bleed = remember { Animatable(0f) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clickable { onClick() }
+            .clickable {
+                scope.launch {
+                    bleed.snapTo(0f)
+                    bleed.animateTo(1f, animationSpec = tween(durationMillis = 320))
+                }
+                onClick()
+            }
             .padding(2.dp),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(if (hasEntry && mood != null) mood.tint.copy(alpha = 0.14f) else Color.Transparent),
+                .background(if (hasEntry && mood != null) mood.tint.copy(alpha = 0.14f) else Color.Transparent)
+                .drawBehind {
+                    if (bleed.value > 0f && bleed.value < 1f) {
+                        val progress = bleed.value
+                        drawCircle(
+                            color = FieldLedgerPalette.Brass.copy(alpha = 0.28f * (1f - progress)),
+                            radius = (size.minDimension / 2f) * progress,
+                            center = center,
+                        )
+                    }
+                },
             contentAlignment = Alignment.Center,
         ) {
             DateStamp(epochDayLocal = epochDay, size = 44.dp, inkColor = ink)
