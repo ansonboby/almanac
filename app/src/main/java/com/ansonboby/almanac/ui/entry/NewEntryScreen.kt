@@ -44,6 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -68,7 +69,6 @@ import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
 import com.ansonboby.almanac.ui.theme.StampType
-import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,7 +83,7 @@ fun NewEntryScreen(
     var showCamera by remember { mutableStateOf(false) }
     var cameraError by remember { mutableStateOf<String?>(null) }
     val imageCapture = remember { ImageCapture.Builder().build() }
-    val executor = remember { Executors.newSingleThreadExecutor() }
+    val executor = remember { ContextCompat.getMainExecutor(context) }
     val stampScope = rememberCoroutineScope()
     val stampScale = remember { Animatable(1f) }
     val stampRotation = remember { Animatable(0f) }
