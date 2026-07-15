@@ -49,4 +49,11 @@ interface EntryDao {
 
     @Query("SELECT COUNT(*) FROM entries WHERE deleted = 0")
     suspend fun countLive(): Int
+
+    /** Raw live entries in a day range — backs month search/filter. */
+    @Query(
+        "SELECT * FROM entries WHERE deleted = 0 AND epoch_day_local BETWEEN :start AND :end " +
+            "ORDER BY epoch_day_local ASC, created_at ASC",
+    )
+    fun observeMonthEntries(start: Int, end: Int): Flow<List<Entry>>
 }

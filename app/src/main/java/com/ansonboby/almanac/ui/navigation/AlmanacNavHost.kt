@@ -16,9 +16,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ansonboby.almanac.ui.entry.EntryDetailScreen
 import com.ansonboby.almanac.ui.entry.NewEntryScreen
+import com.ansonboby.almanac.ui.habit.HabitsScreen
 import com.ansonboby.almanac.ui.insights.InsightsScreen
 import com.ansonboby.almanac.ui.month.MonthScreen
 import com.ansonboby.almanac.ui.settings.SettingsScreen
+import com.ansonboby.almanac.ui.specimen.StyleSpecimenScreen
 import com.ansonboby.almanac.ui.today.TodayScreen
 
 /**
@@ -53,6 +55,7 @@ fun AlmanacNavHost(
                             restoreState = true
                         }
                     },
+                    onOpenSpecimen = { navController.navigate(Destination.Specimen.route) },
                 )
             }
         },
@@ -77,6 +80,12 @@ fun AlmanacNavHost(
             }
             composable(Destination.Insights.route) {
                 InsightsScreen(onToggleTheme = onToggleTheme)
+            }
+            composable(Destination.Habits.route) {
+                HabitsScreen()
+            }
+            composable(Destination.Specimen.route) {
+                StyleSpecimenScreen(darkTheme = darkTheme, onToggleTheme = onToggleTheme)
             }
             composable(Destination.Settings.route) {
                 SettingsScreen(onToggleTheme = onToggleTheme)

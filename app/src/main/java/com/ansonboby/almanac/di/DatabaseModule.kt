@@ -3,7 +3,6 @@ package com.ansonboby.almanac.di
 import android.content.Context
 import androidx.room.Room
 import com.ansonboby.almanac.data.local.AlmanacDatabase
-import com.ansonboby.almanac.data.local.EntryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,9 +22,7 @@ object DatabaseModule {
             context,
             AlmanacDatabase::class.java,
             "almanac.db",
-        ).fallbackToDestructiveMigration(false).build()
-
-    @Provides
-    fun provideEntryDao(database: AlmanacDatabase): EntryDao =
-        database.entryDao()
+        ).addMigrations(AlmanacDatabase.MIGRATION_1_2)
+            .fallbackToDestructiveMigration(false)
+            .build()
 }

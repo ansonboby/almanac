@@ -24,8 +24,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ansonboby.almanac.R
 import com.ansonboby.almanac.data.local.DaySummary
+import com.ansonboby.almanac.data.repository.EntryFilter
 import com.ansonboby.almanac.data.util.LocalDateUtil
 import com.ansonboby.almanac.ui.components.DateStamp
+import com.ansonboby.almanac.ui.components.EntryFilterBar
 import com.ansonboby.almanac.ui.components.Mood
 import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
@@ -49,7 +51,8 @@ fun MonthScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            androidx.compose.material3.TopAppBar(
+            Column {
+                androidx.compose.material3.TopAppBar(
                 title = {
                     Column {
                         Text(
@@ -87,6 +90,14 @@ fun MonthScreen(
                     containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
+            EntryFilterBar(
+                query = state.query,
+                filter = state.filter,
+                onQueryChange = viewModel::setQuery,
+                onFilterChange = viewModel::setFilter,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+            )
+            }
         },
     ) { padding ->
         LazyVerticalGrid(

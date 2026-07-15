@@ -18,6 +18,7 @@
     <!-- Bottom navigation -->
     <string name="nav_today">Today</string>
     <string name="nav_month">Month</string>
+    <string name="nav_habits">Habits</string>
     <string name="nav_insights">Insights</string>
     <string name="nav_settings">Settings</string>
 
@@ -64,9 +65,54 @@
     <string name="onboarding_begin">Open the ledger</string>
     <string name="onboarding_skip">Not now</string>
 
+    <!-- Insights -->
+    <string name="insights_eyebrow">READINGS</string>
+    <string name="insights_title">Insights</string>
+    <string name="insights_mood">Mood trend</string>
+    <string name="insights_frequency">Entry frequency</string>
+    <string name="insights_habits">Habit consistency</string>
+    <string name="insights_habits_empty">Add a habit to see its consistency.</string>
+
+    <!-- Habits -->
+    <string name="habits_eyebrow">DAILY OBSERVANCES</string>
+    <string name="habits_title">Habits</string>
+    <string name="habits_empty">No habits kept yet. Begin one below.</string>
+    <string name="habits_new">New habit</string>
+    <string name="habits_edit_title">Edit habit</string>
+    <string name="habits_new_title">New habit</string>
+    <string name="habits_name_hint">Name, e.g. Morning walk</string>
+    <string name="habits_note_hint">Note (optional)</string>
+    <string name="habits_frequency">Frequency</string>
+    <string name="habits_custom_days">On selected days</string>
+    <string name="habits_color">Ink</string>
+    <string name="habits_save">Save</string>
+    <string name="habits_archive">Archive</string>
+    <string name="habits_archive_confirm">Archive this habit?</string>
+    <string name="habits_archive_confirm_body">Its past marks stay in the ledger.</string>
+    <string name="habits_archived_header">Archived</string>
+    <string name="habits_archived">Archived</string>
+    <string name="habits_archive_title">Archive habit</string>
+    <string name="habits_archive_body">Archive this habit? Its past marks stay in the ledger.</string>
+    <string name="habits_custom_days_hint">Select the days this is due</string>
+
+    <!-- Entry filter / search -->
+    <string name="filter_all">All</string>
+    <string name="filter_photo">Photo</string>
+    <string name="filter_text">Text</string>
+    <string name="filter_mood">Mood</string>
+    <string name="filter_note">Note</string>
+    <string name="search_hint">Search the ledger…</string>
+
+    <!-- Habit frequency -->
+    <string name="habit_freq_daily">Daily</string>
+    <string name="habit_freq_weekdays">Weekdays</string>
+    <string name="habit_freq_weekends">Weekends</string>
+    <string name="habit_freq_custom">Custom</string>
+
+    <!-- Misc -->
+    <string name="colophon">Field Ledger — a quiet record of days.</string>
+
     <!-- Placeholders (Phase 2+) -->
-    <string name="insights_placeholder_title">Insights</string>
-    <string name="insights_placeholder_body">Mood trends and habit charts arrive in a later volume.</string>
     <string name="settings_placeholder_title">Settings</string>
     <string name="settings_placeholder_body">Theme, reminders, export, and privacy live here in a later volume.</string>
     <string name="finis_opus">FINIS OPUS</string>

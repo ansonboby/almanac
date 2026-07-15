@@ -55,4 +55,15 @@ object LocalDateUtil {
         toLocalDate(epochDayLocal).format(DateTimeFormatter.ofPattern("MMM"))
 
     fun dayOfMonth(epochDayLocal: Int): Int = toLocalDate(epochDayLocal).dayOfMonth
+
+    /** Day of week as 1=Mon … 7=Sun (matches [HabitFrequency.isDueOn]). */
+    fun dayOfWeek(epochDayLocal: Int): Int = toLocalDate(epochDayLocal).dayOfWeek.value
+
+    /** Lower bound for streak scans (keeps the backward loop bounded). */
+    fun minDay(): Int = LocalDate.of(2000, 1, 1).toEpochDay().toInt()
+
+    fun dayMonth(epochDayLocal: Int): String {
+        val d = toLocalDate(epochDayLocal)
+        return "${monthShort(epochDayLocal)} ${d.dayOfMonth}"
+    }
 }

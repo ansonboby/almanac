@@ -3,6 +3,7 @@ package com.ansonboby.almanac.ui.today
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ansonboby.almanac.data.local.Entry
+import com.ansonboby.almanac.data.repository.EntryFilter
 import com.ansonboby.almanac.data.repository.EntryRepository
 import com.ansonboby.almanac.data.util.LocalDateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,8 @@ import javax.inject.Inject
 
 data class TodayUiState(
     val day: Int = LocalDateUtil.todayLocalDay(),
+    val query: String = "",
+    val filter: EntryFilter = EntryFilter.ALL,
     val entries: List<Entry> = emptyList(),
     val isLoading: Boolean = true,
 )
@@ -32,11 +35,21 @@ class TodayViewModel @Inject constructor(
 
     private fun observeDay(day: Int) {
         viewModelScope.launch {
-            repository.dayEntries(day)
-                .catch { _uiState.value = TodayUiState(day = day, isLoading = false) }
+            repository.dayEntries(day, _uiState.value.query, _uiState.value.filter)
+                .catch { _uiState.value = _uiState.value.copy(day = day, isLoading = false) }
                 .collect { entries ->
-                    _uiState.value = TodayUiState(day = day, entries = entries, isLoading = false)
+                    _uiState.value = _uiState.value.copy(day = day, entries = entries, isLoading = false)
                 }
         }
+    }
+
+    fun setQuery(query: String) {
+        _uiState.value = _uiState.value.copy(query = query)
+        observeDay(_uiState.value.day)
+    }
+
+    fun setFilter(filter: EntryFilter) {
+        _uiState.value = _uiState.value.copy(filter = filter)
+        observeDay(_uiState.value.day)
     }
 }

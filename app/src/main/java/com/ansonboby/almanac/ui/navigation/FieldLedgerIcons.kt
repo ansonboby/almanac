@@ -68,6 +68,21 @@ fun InsightsIcon(modifier: Modifier = Modifier, tint: Color, size: Dp = 24.dp) {
 }
 
 @Composable
+fun HabitIcon(modifier: Modifier = Modifier, tint: Color, size: Dp = 24.dp) {
+    Canvas(modifier.size(size)) {
+        val s = size.toPx()
+        val st = Stroke(width = ICON_STROKE.toPx(), cap = StrokeCap.Square, join = StrokeJoin.Miter)
+        val p = s * 0.12f
+        // sprout: a stem with two seed-leaves — a daily practice taking root
+        val stemX = s * 0.5f
+        drawLine(tint, Offset(stemX, s - p), Offset(stemX, s * 0.34f), st.width)
+        drawLine(tint, Offset(stemX, s * 0.5f), Offset(s * 0.26f, s * 0.34f), st.width)
+        drawLine(tint, Offset(stemX, s * 0.62f), Offset(s * 0.74f, s * 0.44f), st.width)
+        drawCircle(tint, radius = s * 0.07f, center = Offset(stemX, s * 0.3f), style = st)
+    }
+}
+
+@Composable
 fun CogIcon(modifier: Modifier = Modifier, tint: Color, size: Dp = 24.dp) {
     Canvas(modifier.size(size)) {
         val s = size.toPx()
