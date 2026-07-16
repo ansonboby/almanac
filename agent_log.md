@@ -100,3 +100,22 @@ Root cause of the user's real-device crash ("app crashed, didn't ask for permiss
 ### Build gates
 - `assembleDebug` + `lintDebug` + `testDebugUnitTest` — all BUILD SUCCESSFUL.
 - NOTE: the helper `tap.sh` mis-reports tap coordinates (tapped 540,1191 instead of real 790,1367 for the CAPTURE button); use `tapnode.sh` (exact-bounds tap) for future on-device work.
+
+## 17. Nav-bar clipping fixes (2026-07-17)
+User's screenshots showed three screens with content cut off by the system navigation bar:
+- **Onboarding** ("Not now" flush against nav bar).
+- **NewEntry** ("Capture"/"From gallery" clipped).
+- **Habits "New habit" sheet** (Color row + swatches clipped).
+
+Root cause: scrollable/full-screen Columns did not apply navigation-bar window insets, so their last elements rendered under the 3-button/gesture nav bar (device is 1080x2400, nav bar occupies y 2337-2400).
+
+Fixes:
+- `OnboardingScreen.kt`: root `Column` now `.navigationBarsPadding()` (added import).
+- `NewEntryScreen.kt`: scroll `Column` now `.navigationBarsPadding().imePadding()` (added imports) so Capture/From gallery + keyboard clear the bar.
+- `HabitsScreen.kt`: sheet scroll `Column` now `.navigationBarsPadding().imePadding()` + a trailing `Spacer(72.dp)` so the Save button and Color swatches clear the bar (added `imePadding` + `height` imports).
+
+### On-device verification (fresh uninstall + install, almanac_pixel35)
+- Onboarding "Not now" now at y 2159-2285 (was flush at ~2400); ~52dp clearance above nav bar top 2337 ✓.
+- NewEntry photo mode: bottom content ends at STAMP INTO LEDGER y~1065, well clear; no app node extends under nav bar ✓.
+- Habits "New habit" sheet: scrolled to bottom, Save ends at y~2066, Color/Dusty Rose at y~1900 — clear of nav bar 2337 ✓.
+- `assembleDebug` + `lintDebug` + `testDebugUnitTest` all BUILD SUCCESSFUL.

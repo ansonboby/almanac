@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -306,7 +308,7 @@ private fun HabitEditSheet(
     ) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)
-                .navigationBarsPadding()
+                .navigationBarsPadding().imePadding()
                 .verticalScroll(rememberScrollState()),
         ) {
             Text(
@@ -403,6 +405,7 @@ private fun HabitEditSheet(
             ) {
                 Text(stringResource(R.string.habits_save), style = StampType.counter, color = FieldLedgerPalette.Brass)
             }
+            Spacer(Modifier.height(72.dp))
         }
     }
 }
