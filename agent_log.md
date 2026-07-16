@@ -66,3 +66,10 @@ User dumped `App to-do list features.html` (raw complaints) and pointed at `.pla
 - Timezone/sleep/notifications/widgets still deferred per agreement.
 - `ThemeToggleChip` still referenced by `StyleSpecimenScreen` — acceptable (design-preview screen).
 - CameraX `main executor` rule in AGENTS.md retained as historical lesson only.
+
+## 15. Onboarding CameraPrimer removed (2026-07-16)
+- The "Open the ledger" button had set `cameraPrimer = true`, surfacing a `CameraPrimer` composable that requested `Manifest.permission.CAMERA` via `rememberLauncherForActivityResult`. Since in-app CameraX was retired (system camera via `TakePicture` now handles access), the primer was obsolete.
+- `OnboardingScreen.kt`: removed `CameraPrimer` composable, `cameraPrimer` state, `cameraLauncher`, and unused imports (`Manifest`, `rememberLauncherForActivityResult`, `ActivityResultContracts`). "Open the ledger" and "Not now" now both call `onFinish()` directly.
+- `strings.xml`: removed orphaned `onboarding_camera_title`, `onboarding_camera_body`, `new_entry_grant`, `new_entry_deny`, `new_entry_camera_permission_title`, `new_entry_camera_permission_body`.
+- **On-device re-verified** (fresh uninstall + install, `almanac_pixel35` headless): onboarding now lands straight on Today (no camera primer); NewEntry Photo chooser opens "Add a photo" (Capture / From gallery); From gallery launches system `PhotoPickerGetContentActivity`; back returns to NewEntry with no crash; Month grid, Habits sheet + labeled color swatches, Insights bordered cards, Settings single appearance control all render; no FINIS OPUS anywhere.
+- `assembleDebug` + `lintDebug` + `testDebugUnitTest` all BUILD SUCCESSFUL.

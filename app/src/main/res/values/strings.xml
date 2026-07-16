@@ -46,10 +46,6 @@
     <string name="new_entry_tags_hint">Tags (comma separated), e.g. Aquilegia formosa</string>
     <string name="new_entry_stamp">Stamp into Ledger</string>
     <string name="new_entry_privacy">Your ledger remains on this device.</string>
-    <string name="new_entry_camera_permission_title">Use the camera?</string>
-    <string name="new_entry_camera_permission_body">Almanac needs the camera only to photograph specimens. Nothing leaves your phone.</string>
-    <string name="new_entry_grant">Grant</string>
-    <string name="new_entry_deny">Use gallery</string>
 
     <!-- Entry Detail -->
     <string name="entry_detail_edit">Edit</string>
@@ -62,8 +58,6 @@
     <string name="onboarding_title">A ledger for a life</string>
     <string name="onboarding_body">Almanac is a private, local-first daily journal — photos, notes, and mood, inked into one quiet timeline. No accounts, no cloud, no ads.</string>
     <string name="onboarding_privacy">Your ledger remains on this device.</string>
-    <string name="onboarding_camera_title">Stamp photos of your days</string>
-    <string name="onboarding_camera_body">Capture specimens with your camera, or add them from the gallery later. Camera access is optional and only used inside the app.</string>
     <string name="onboarding_begin">Open the ledger</string>
     <string name="onboarding_skip">Not now</string>
 
