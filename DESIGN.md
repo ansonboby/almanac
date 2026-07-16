@@ -58,6 +58,15 @@ Discovered in the first round of Stitch mockups and worth keeping consistently �
 - A small closing flourish belongs at the bottom of longer screens (Insights, Settings) — e.g. **"FINIS OPUS"**, or a colophon block ("Authenticated Ledger — The Naturalist's Almanac — Est. MMXXIV — Crafted for intention & observation"). Don't overuse this — one per screen, at most.
 - Privacy messaging is stated plainly and repeated where relevant, not just in onboarding: e.g. *"Your ledger remains on this device."*
 
+**Revised after real-device use (Phase 3 field testing):** the closing flourish (e.g. "FINIS OPUS") read as confusing rather than charming to an actual daily user — a design-review reaction to a mockup doesn't reliably predict how copy lands in real use. Use it far more sparingly than "one per longer screen" — only where it's clearly load-bearing for tone, and drop it anywhere a real user has already flagged it as noise. When in doubt, cut it.
+
+**Phase 3 / 4 reconciliation notes (carried from real-device use):**
+
+- **The "pressed specimen" photo treatment is the load-bearing visual, not a nice-to-have.** The mat border + deterministic ±1–3° rotation + subtle shadow is what makes a photo read as "filed in a journal" rather than "a photo in a gallery app." It must survive end-to-end: capture (CameraX) → import to app-private storage → Coil load on Today/Detail → render mat-bordered and slightly rotated. A full-bleed, un-rotated, or broken/blank photo is a regression of the core identity, not a cosmetic miss — treat it as a release blocker. (Verified on-device in Phase 3: live preview renders, capture saves, and the entry shows on Today with the treatment intact.)
+- **Camera must open fast and render a live preview, not a black box.** The New Entry → Photo flow is the first-listed, most-designed entry type; a black preview or a crash on open reads as the app being broken. The motion budget below applies *after* the preview is live — don't let a loading/permission state steal the stamp-in moment.
+- **Mono stays strictly stamped-metadata-only.** Confirmed in real use: dates, coordinates, counters, archival numbers (`№ 442`) in IBM Plex Mono; everything else in Inter/Fraunces. No drift toward mono UI labels.
+- **Motion budget is exactly two moments** — stamp-in settle, ink-bleed ripple on Month taps. Both are implemented. Do not add a third; real-device use confirmed the restraint is what makes the two land.
+
 ## Do / Don't
 
 - **Do** default to the dark "Ink" theme unless asked for the light variant.
