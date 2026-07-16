@@ -179,48 +179,98 @@ class LedgerExport @Inject constructor(
         val pageWidth = 595 // A4 pt
         val pageHeight = 842
         val margin = 48f
+        val contentWidth = pageWidth - margin * 2
         val lineHeight = 16f
-        val paint = Paint().apply {
+        val blockGap = 10f
+        val bodyPaint = Paint().apply {
             color = Color.BLACK
             textSize = 11f
+        }
+        val metaPaint = Paint().apply {
+            color = Color.DKGRAY
+            textSize = 10f
         }
         val titlePaint = Paint().apply {
             color = Color.BLACK
             textSize = 20f
         }
-        val dateFmt = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
-        val dayFmt = DateTimeFormatter.ofPattern("d MMM yyyy")
+        val rulePaint = Paint().apply {
+            color = Color.GRAY
+            strokeWidth = 1f
+        }
+        val dateFmt = SimpleDateFormat("d MMM yyyy, h:mm a", Locale.getDefault())
+        val dayFmt = DateTimeFormatter.ofPattern("EEEE, d MMM yyyy")
 
         var page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create())
         var canvas = page.canvas
         var y = margin
+
+        fun newPage() {
+            document.finishPage(page)
+            page = document.startPage(
+                PdfDocument.PageInfo.Builder(pageWidth, pageHeight, document.pages.size + 1).create(),
+            )
+            canvas = page.canvas
+            y = margin
+        }
+
+        fun drawWrapped(text: String, paint: Paint, indent: Float = 0f): Float {
+            var yy = 0f
+            val words = text.split(" ")
+            val sb = StringBuilder()
+            for (word in words) {
+                val trial = if (sb.isEmpty()) word else "$sb $word"
+                if (paint.measureText(trial) > contentWidth - indent && sb.isNotEmpty()) {
+                    canvas.drawText(sb.toString(), margin + indent, y + yy, paint)
+                    yy += lineHeight
+                    sb.clear()
+                    sb.append(word)
+                } else {
+                    sb.clear()
+                    sb.append(trial)
+                }
+            }
+            if (sb.isNotEmpty()) {
+                canvas.drawText(sb.toString(), margin + indent, y + yy, paint)
+                yy += lineHeight
+            }
+            return yy
+        }
+
         canvas.drawText(context.getString(R.string.export_pdf_title), margin, y, titlePaint)
-        y += lineHeight * 2
+        y += lineHeight * 1.6f
         canvas.drawText(
             context.getString(R.string.export_pdf_generated, dateFmt.format(java.util.Date())),
             margin,
             y,
-            paint,
+            metaPaint,
         )
-        y += lineHeight * 2
+        y += lineHeight * 1.2f
+        canvas.drawLine(margin, y, pageWidth - margin, y, rulePaint)
+        y += lineHeight * 1.6f
 
         if (entries.isEmpty()) {
-            canvas.drawText(context.getString(R.string.export_pdf_empty), margin, y, paint)
+            canvas.drawText(context.getString(R.string.export_pdf_empty), margin, y, bodyPaint)
         }
 
         entries.sortedByDescending { it.createdAt }.forEach { entry ->
             val label = LocalDateUtil.toLocalDate(entry.epochDayLocal).format(dayFmt)
-            val mood = entry.moodScore?.let { "mood $it" } ?: ""
-            val text = (entry.textContent ?: "").let { if (it.length > 70) it.take(70) + "…" else it }
-            val line = "$label  ·  ${entry.type.name.lowercase()}  $mood  $text".trim()
-            if (y + lineHeight > pageHeight - margin) {
-                document.finishPage(page)
-                page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, document.pages.size + 1).create())
-                canvas = page.canvas
-                y = margin
-            }
-            canvas.drawText(line, margin, y, paint)
-            y += lineHeight
+            val mood = entry.moodScore?.let { " · mood $it" } ?: ""
+            val meta = "${entry.type.name.lowercase()}$mood"
+            val body = entry.textContent?.takeIf { it.isNotBlank() } ?: "(no text)"
+
+            // Estimate block height; start a new page if it won't fit.
+            val estLines = 2 + (body.length / 70f).toInt().coerceAtLeast(1)
+            if (y + estLines * lineHeight + blockGap > pageHeight - margin) newPage()
+
+            val metaH = drawWrapped(label, metaPaint)
+            y += metaH
+            val tagH = drawWrapped(meta, bodyPaint)
+            y += tagH
+            val bodyH = drawWrapped(body, bodyPaint, indent = 8f)
+            y += bodyH + blockGap
+            canvas.drawLine(margin, y - blockGap / 2, pageWidth - margin, y - blockGap / 2, rulePaint)
+            y += blockGap / 2
         }
 
         document.finishPage(page)

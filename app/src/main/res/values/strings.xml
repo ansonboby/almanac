@@ -39,6 +39,8 @@
     <string name="new_entry_mood">Mood</string>
     <string name="new_entry_capture">Capture</string>
     <string name="new_entry_from_gallery">From gallery</string>
+    <string name="new_entry_photo_source_title">Add a photo</string>
+    <string name="new_entry_photo_source_body">Capture a fresh specimen with the camera, or pull one from your gallery.</string>
     <string name="new_entry_caption_hint">A line about this specimen…</string>
     <string name="new_entry_text_hint">Write today\'s observation…</string>
     <string name="new_entry_tags_hint">Tags (comma separated), e.g. Aquilegia formosa</string>
@@ -86,7 +88,8 @@
     <string name="habits_note_hint">Note (optional)</string>
     <string name="habits_frequency">Frequency</string>
     <string name="habits_custom_days">On selected days</string>
-    <string name="habits_color">Ink</string>
+    <string name="habits_color">Color</string>
+    <string name="habits_color_hint">The tint that marks this habit\'s stamp on the ledger.</string>
     <string name="habits_save">Save</string>
     <string name="habits_archive">Archive</string>
     <string name="habits_archive_confirm">Archive this habit?</string>
@@ -158,6 +161,4 @@
     <string name="new_entry_location_hint">No place stamped</string>
     <string name="new_entry_location_add">Add place</string>
     <string name="new_entry_location_clear">Clear</string>
-
-    <string name="finis_opus">FINIS OPUS</string>
 </resources>

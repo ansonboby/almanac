@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -151,12 +152,6 @@ fun HabitsScreen(viewModel: HabitsViewModel = hiltViewModel()) {
                                 .padding(vertical = 10.dp, horizontal = 8.dp),
                         )
                     }
-                }
-            }
-
-            item {
-                Column(Modifier.fillMaxWidth().padding(top = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.finis_opus), style = StampType.counter, color = FieldLedgerPalette.Brass)
                 }
             }
         }
@@ -311,6 +306,7 @@ private fun HabitEditSheet(
     ) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState()),
         ) {
             Text(
@@ -370,15 +366,34 @@ private fun HabitEditSheet(
             }
 
             Text(stringResource(R.string.habits_color), style = StampType.counter, color = FieldLedgerPalette.Moss, modifier = Modifier.padding(top = 16.dp))
-            Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                stringResource(R.string.habits_color_hint),
+                style = StampType.metadata,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 HABIT_TINTS.forEach { t ->
                     val selected = t == state.tint
-                    Box(
-                        Modifier.size(30.dp)
-                            .border(if (selected) 2.dp else 1.dp, if (selected) FieldLedgerPalette.Brass else FieldLedgerPalette.Moss, RoundedCornerShape(0.dp))
-                            .background(habitTintColor(t))
-                            .clickable { onTintChange(t) },
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .border(if (selected) 1.dp else 0.dp, if (selected) FieldLedgerPalette.Brass else Color.Transparent, RoundedCornerShape(0.dp))
+                            .clickable { onTintChange(t) }
+                            .padding(6.dp),
+                    ) {
+                        Box(
+                            Modifier.size(30.dp)
+                                .border(1.dp, if (selected) FieldLedgerPalette.Brass else FieldLedgerPalette.Moss, RoundedCornerShape(0.dp))
+                                .background(habitTintColor(t)),
+                        )
+                        Text(
+                            habitTintLabel(t),
+                            style = StampType.metadata,
+                            color = if (selected) FieldLedgerPalette.Brass else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
                 }
             }
 
@@ -403,3 +418,10 @@ private fun habitFieldColors() = TextFieldDefaults.colors(
     focusedLabelColor = FieldLedgerPalette.Moss,
     unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
 )
+
+/** Human-readable name for a habit tint (shown under the swatch in the sheet). */
+private fun habitTintLabel(tint: String): String = when (tint) {
+    "moss" -> "Moss"
+    "dusty_rose" -> "Dusty Rose"
+    else -> "Brass"
+}

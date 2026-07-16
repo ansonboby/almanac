@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,7 +31,6 @@ import com.ansonboby.almanac.data.repository.EntryFilter
 import com.ansonboby.almanac.data.util.LocalDateUtil
 import com.ansonboby.almanac.ui.components.EntryFilterBar
 import com.ansonboby.almanac.ui.components.EntryRow
-import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
 import com.ansonboby.almanac.ui.theme.StampType
@@ -59,21 +59,26 @@ fun TodayScreen(
                                 style = StampType.metadata,
                                 color = FieldLedgerPalette.Brass,
                             )
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(6.dp))
                             Text(
                                 text = "Today",
                                 style = AlmanacTypography.displaySmall,
                                 color = MaterialTheme.colorScheme.onBackground,
                             )
                             Spacer(Modifier.height(6.dp))
+                            HorizontalDivider(
+                                Modifier.fillMaxWidth().padding(end = 24.dp),
+                                thickness = 1.dp,
+                                color = FieldLedgerPalette.Moss.copy(alpha = 0.4f),
+                            )
+                            Spacer(Modifier.height(6.dp))
                             Text(
                                 text = dayLabel,
-                                style = AlmanacTypography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = AlmanacTypography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     },
-                    actions = { ThemeToggleChip(onToggleTheme = onToggleTheme) },
                     colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background,
                     ),

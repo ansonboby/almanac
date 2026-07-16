@@ -18,6 +18,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,10 +42,8 @@ import com.ansonboby.almanac.R
 import com.ansonboby.almanac.data.local.DaySummary
 import com.ansonboby.almanac.data.repository.EntryFilter
 import com.ansonboby.almanac.data.util.LocalDateUtil
-import com.ansonboby.almanac.ui.components.DateStamp
 import com.ansonboby.almanac.ui.components.EntryFilterBar
 import com.ansonboby.almanac.ui.components.Mood
-import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
 import com.ansonboby.almanac.ui.theme.StampType
@@ -97,7 +98,6 @@ fun MonthScreen(
                             .clickable { viewModel.goToMonth(LocalDateUtil.localDay(firstOfMonth.plusMonths(1))) }
                             .padding(horizontal = 12.dp),
                     )
-                    ThemeToggleChip(onToggleTheme = onToggleTheme)
                 },
                 colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -150,6 +150,7 @@ fun MonthScreen(
                     DayCell(
                         epochDay = epochDay,
                         summary = summary,
+                        selected = epochDay == LocalDateUtil.todayLocalDay(),
                         onClick = { onOpenDay(epochDay) },
                     )
                 }
@@ -162,13 +163,15 @@ fun MonthScreen(
 private fun DayCell(
     epochDay: Int,
     summary: DaySummary?,
+    selected: Boolean = false,
     onClick: () -> Unit,
 ) {
     val hasEntry = summary != null
     val mood = summary?.moodScore?.let { Mood.fromScore(it) }
+    val day = LocalDateUtil.dayOfMonth(epochDay)
     val ink = when {
-        !hasEntry -> MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        else -> FieldLedgerPalette.Brass
+        !hasEntry -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+        else -> MaterialTheme.colorScheme.onSurface
     }
     val scope = rememberCoroutineScope()
     val bleed = remember { Animatable(0f) }
@@ -187,7 +190,25 @@ private fun DayCell(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(if (hasEntry && mood != null) mood.tint.copy(alpha = 0.14f) else Color.Transparent)
+                .aspectRatio(1f)
+                .background(
+                    if (hasEntry && mood != null) {
+                        mood.tint.copy(alpha = 0.16f)
+                    } else {
+                        Color.Transparent
+                    },
+                )
+                .border(
+                    width = if (selected) 1.5.dp else if (hasEntry) 1.dp else 0.dp,
+                    color = if (selected) {
+                        FieldLedgerPalette.Brass
+                    } else if (hasEntry) {
+                        FieldLedgerPalette.Brass.copy(alpha = 0.5f)
+                    } else {
+                        Color.Transparent
+                    },
+                    shape = RoundedCornerShape(0.dp),
+                )
                 .drawBehind {
                     if (bleed.value > 0f && bleed.value < 1f) {
                         val progress = bleed.value
@@ -200,13 +221,12 @@ private fun DayCell(
                 },
             contentAlignment = Alignment.Center,
         ) {
-            DateStamp(epochDayLocal = epochDay, size = 44.dp, inkColor = ink)
+            Text(
+                text = day.toString(),
+                style = StampType.stampDate,
+                color = ink,
+                textAlign = TextAlign.Center,
+            )
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = LocalDateUtil.dayOfMonth(epochDay).toString(),
-            style = StampType.metadata,
-            color = if (hasEntry) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        )
     }
 }

@@ -42,7 +42,6 @@ import com.ansonboby.almanac.data.repository.DayCount
 import com.ansonboby.almanac.data.repository.DayMood
 import com.ansonboby.almanac.data.repository.HabitConsistency
 import com.ansonboby.almanac.data.util.LocalDateUtil
-import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.habit.habitTintColor
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
@@ -76,7 +75,6 @@ fun InsightsScreen(
                         )
                     }
                 },
-                actions = { ThemeToggleChip(onToggleTheme = onToggleTheme) },
                 colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                 ),
@@ -105,37 +103,43 @@ fun InsightsScreen(
             ) {
                 item { SectionHeader(stringResource(R.string.insights_mood)) }
                 item {
-                    if (state.mood.count { it.count > 0 } < 2) {
-                        InsightEmptyState(stringResource(R.string.insights_mood_empty))
-                    } else {
-                        MoodTrendChart(
-                            mood = state.mood,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                    InsightCard {
+                        if (state.mood.count { it.count > 0 } < 2) {
+                            InsightEmptyState(stringResource(R.string.insights_mood_empty))
+                        } else {
+                            MoodTrendChart(
+                                mood = state.mood,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                 }
 
                 item { SectionHeader(stringResource(R.string.insights_frequency)) }
                 item {
-                    if (state.frequency.none { it.count > 0 }) {
-                        InsightEmptyState(stringResource(R.string.insights_frequency_empty))
-                    } else {
-                        FrequencyChart(
-                            frequency = state.frequency,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                    InsightCard {
+                        if (state.frequency.none { it.count > 0 }) {
+                            InsightEmptyState(stringResource(R.string.insights_frequency_empty))
+                        } else {
+                            FrequencyChart(
+                                frequency = state.frequency,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                 }
 
                 item { SectionHeader(stringResource(R.string.insights_habits)) }
                 if (state.habits.isEmpty()) {
                     item {
-                        Text(
-                            text = stringResource(R.string.insights_habits_empty),
-                            style = AlmanacTypography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 8.dp),
-                        )
+                        InsightCard {
+                            Text(
+                                text = stringResource(R.string.insights_habits_empty),
+                                style = AlmanacTypography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                            )
+                        }
                     }
                 } else {
                     items(state.habits, key = { it.habit.id }) { hc ->
@@ -145,7 +149,6 @@ fun InsightsScreen(
 
                 item {
                     Column(Modifier.fillMaxWidth().padding(top = 24.dp, bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(stringResource(R.string.finis_opus), style = StampType.counter, color = FieldLedgerPalette.Brass.copy(alpha = 0.45f))
                         Text(
                             stringResource(R.string.colophon),
                             style = StampType.metadata,
@@ -176,6 +179,19 @@ private fun SectionHeader(text: String) {
         style = StampType.metadata.copy(color = FieldLedgerPalette.Moss),
         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
     )
+}
+
+@Composable
+private fun InsightCard(content: @Composable () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .border(1.dp, FieldLedgerPalette.Moss.copy(alpha = 0.35f), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .padding(14.dp),
+    ) {
+        content()
+    }
 }
 
 @Composable

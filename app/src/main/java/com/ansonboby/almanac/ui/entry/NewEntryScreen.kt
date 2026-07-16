@@ -4,11 +4,6 @@ import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.animation.core.Animatable
@@ -30,10 +25,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -43,10 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.core.content.ContextCompat
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,9 +49,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ansonboby.almanac.R
 import com.ansonboby.almanac.data.local.EntryType
@@ -65,7 +59,6 @@ import com.ansonboby.almanac.data.util.LocalDateUtil
 import com.ansonboby.almanac.ui.components.DateStamp
 import com.ansonboby.almanac.ui.components.Mood
 import com.ansonboby.almanac.ui.components.MoodWeatherGlyph
-import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
 import com.ansonboby.almanac.ui.theme.StampType
@@ -80,14 +73,21 @@ fun NewEntryScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val storage = remember { FileStorage.get(context) }
-    var showCamera by remember { mutableStateOf(false) }
-    var cameraError by remember { mutableStateOf<String?>(null) }
-    val imageCapture = remember { ImageCapture.Builder().build() }
-    val executor = remember { ContextCompat.getMainExecutor(context) }
+    var showPhotoChooser by remember { mutableStateOf(false) }
     val stampScope = rememberCoroutineScope()
     val stampScale = remember { Animatable(1f) }
     val stampRotation = remember { Animatable(0f) }
 
+    // System camera app -> writes to a temp app-private file via FileProvider.
+    var pendingCaptureUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture(),
+    ) { saved ->
+        if (saved) pendingCaptureUri?.let { viewModel.setPhoto(it.toString()) }
+        pendingCaptureUri = null
+    }
+
+    // Gallery -> copy picked URI into app-private storage.
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent(),
     ) { uri ->
@@ -98,11 +98,12 @@ fun NewEntryScreen(
         }
     }
 
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        if (granted) showCamera = true
-        else galleryLauncher.launch("image/*")
+    fun openCamera() {
+        val file = storage.newCaptureFile()
+        storage.uriForFile(file).also { uri ->
+            pendingCaptureUri = uri
+            takePictureLauncher.launch(uri)
+        }
     }
 
     val geotagEnabled by viewModel.geotagEnabled.collectAsStateWithLifecycle(initialValue = false)
@@ -110,10 +111,6 @@ fun NewEntryScreen(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
         if (granted) viewModel.requestGeoTag()
-    }
-
-    fun requestCamera() {
-        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
     Scaffold(
@@ -134,7 +131,6 @@ fun NewEntryScreen(
                         )
                     }
                 },
-                actions = { ThemeToggleChip(onToggleTheme = onToggleTheme) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
@@ -145,7 +141,7 @@ fun NewEntryScreen(
         ) {
             // Type selector
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                EntryTypeChip(stringResource(R.string.new_entry_photo), state.type == EntryType.PHOTO) { requestCamera() }
+                EntryTypeChip(stringResource(R.string.new_entry_photo), state.type == EntryType.PHOTO) { showPhotoChooser = true }
                 EntryTypeChip(stringResource(R.string.new_entry_text), state.type == EntryType.TEXT) { viewModel.setType(EntryType.TEXT) }
                 EntryTypeChip(stringResource(R.string.new_entry_mood), state.type == EntryType.MOOD) { viewModel.setMood(state.moodScore ?: 0) }
             }
@@ -161,24 +157,12 @@ fun NewEntryScreen(
 
             // Content by type
             when {
-                showCamera -> {
-                    CameraCaptureView(
-                        imageCapture = imageCapture,
-                        onCaptured = { uri ->
-                            viewModel.setPhoto(uri)
-                            showCamera = false
-                        },
-                        onError = { cameraError = it; showCamera = false },
-                        storage = storage,
-                        executor = executor,
-                    )
-                }
                 state.photoUri != null -> {
                     PhotoPreview(
                         uri = state.photoUri!!,
                         caption = state.caption,
                         onCaptionChange = { viewModel.setPhoto(state.photoUri!!, it) },
-                        onRetake = { viewModel.clearPhoto(); requestCamera() },
+                        onRetake = { viewModel.clearPhoto(); showPhotoChooser = true },
                         onGallery = { galleryLauncher.launch("image/*") },
                     )
                 }
@@ -197,10 +181,6 @@ fun NewEntryScreen(
                 state.type == EntryType.MOOD -> {
                     MoodPicker(selected = state.moodScore) { viewModel.setMood(it) }
                 }
-            }
-
-            if (cameraError != null) {
-                Text(cameraError!!, color = FieldLedgerPalette.DustyRose, style = AlmanacTypography.bodySmall)
             }
 
             if (state.errorMessage != null) {
@@ -264,6 +244,37 @@ fun NewEntryScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+
+    if (showPhotoChooser) {
+        AlertDialog(
+            onDismissRequest = { showPhotoChooser = false },
+            containerColor = MaterialTheme.colorScheme.background,
+            title = {
+                Text(
+                    stringResource(R.string.new_entry_photo_source_title),
+                    style = AlmanacTypography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.new_entry_photo_source_body),
+                    style = AlmanacTypography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showPhotoChooser = false; openCamera() }) {
+                    Text(stringResource(R.string.new_entry_capture).uppercase(), style = StampType.counter, color = FieldLedgerPalette.Brass)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPhotoChooser = false; galleryLauncher.launch("image/*") }) {
+                    Text(stringResource(R.string.new_entry_from_gallery).uppercase(), style = StampType.counter, color = FieldLedgerPalette.Moss)
+                }
+            },
+        )
     }
 }
 
@@ -394,66 +405,3 @@ private fun PhotoPreview(
     }
 }
 
-@Composable
-private fun CameraCaptureView(
-    imageCapture: ImageCapture,
-    onCaptured: (String) -> Unit,
-    onError: (String) -> Unit,
-    storage: FileStorage,
-    executor: java.util.concurrent.Executor,
-) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    AndroidView(
-        factory = { ctx ->
-            val pv = PreviewView(ctx)
-            val preview = Preview.Builder().build().also { it.setSurfaceProvider(pv.surfaceProvider) }
-            val future = androidx.camera.lifecycle.ProcessCameraProvider.getInstance(ctx)
-            future.addListener({
-                try {
-                    val provider = future.get()
-                    provider.unbindAll()
-                    provider.bindToLifecycle(
-                        lifecycleOwner,
-                        CameraSelector.DEFAULT_BACK_CAMERA,
-                        preview,
-                        imageCapture,
-                    )
-                } catch (e: Exception) {
-                    onError(e.message ?: "Camera failed")
-                }
-            }, executor)
-            pv
-        },
-        modifier = Modifier.fillMaxWidth().height(320.dp).background(androidx.compose.ui.graphics.Color.Black),
-    )
-    Row(
-        Modifier.fillMaxWidth().padding(top = 10.dp),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            Modifier
-                .size(64.dp)
-                .border(2.dp, FieldLedgerPalette.Brass)
-                .clickable {
-                    val file = storage.newCaptureFile()
-                    val output = ImageCapture.OutputFileOptions.Builder(file).build()
-                    imageCapture.takePicture(
-                        output,
-                        executor,
-                        object : ImageCapture.OnImageSavedCallback {
-                            override fun onImageSaved(result: ImageCapture.OutputFileResults) {
-                                onCaptured(file.absolutePath)
-                            }
-                            override fun onError(exc: ImageCaptureException) {
-                                onError(exc.message ?: "Capture failed")
-                            }
-                        },
-                    )
-                },
-            contentAlignment = Alignment.Center,
-        ) {
-            Box(Modifier.size(48.dp).background(FieldLedgerPalette.Brass))
-        }
-    }
-}

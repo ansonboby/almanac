@@ -5,6 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ansonboby.almanac.data.datastore.PreferencesManager
@@ -12,6 +15,7 @@ import com.ansonboby.almanac.ui.navigation.AlmanacNavHost
 import com.ansonboby.almanac.ui.onboarding.OnboardingScreen
 import com.ansonboby.almanac.ui.theme.AlmanacTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +29,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
+            // `ready` holds the gate until the onboarding flow has actually emitted
+            // at least once. Without it, initialValue = false makes the first real
+            // emit (true) swap Onboarding -> NavHost in a single frame (the flash).
+            var ready by remember { mutableStateOf(false) }
             val onboardingComplete by preferences.onboardingComplete
                 .collectAsStateWithLifecycle(initialValue = false)
             val themeMode by preferences.themeMode
@@ -35,8 +43,14 @@ class MainActivity : ComponentActivity() {
             val darkTheme = themeMode != 2
             val scope = rememberCoroutineScope()
 
+            // Mark ready once the onboarding flow has produced its first value.
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                preferences.onboardingComplete.first()
+                ready = true
+            }
+
             AlmanacTheme(darkTheme = darkTheme) {
-                if (onboardingComplete) {
+                if (ready && onboardingComplete) {
                     AlmanacNavHost(
                         darkTheme = darkTheme,
                         onToggleTheme = {

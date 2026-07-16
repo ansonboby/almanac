@@ -48,7 +48,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ansonboby.almanac.R
-import com.ansonboby.almanac.ui.components.ThemeToggleChip
 import com.ansonboby.almanac.ui.theme.AlmanacTypography
 import com.ansonboby.almanac.ui.theme.FieldLedgerPalette
 import com.ansonboby.almanac.ui.theme.StampType
@@ -94,7 +93,6 @@ fun SettingsScreen(
                         Text(stringResource(R.string.settings_title), style = AlmanacTypography.displaySmall, color = MaterialTheme.colorScheme.onBackground)
                     }
                 },
-                actions = { ThemeToggleChip(onToggleTheme = onToggleTheme) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
@@ -167,7 +165,6 @@ fun SettingsScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(stringResource(R.string.finis_opus), style = StampType.counter, color = FieldLedgerPalette.Brass)
                         Text(
                             stringResource(R.string.colophon),
                             style = StampType.metadata,
