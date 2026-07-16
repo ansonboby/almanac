@@ -10,7 +10,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 data class TodayUiState(
@@ -30,26 +33,28 @@ class TodayViewModel @Inject constructor(
     val uiState: StateFlow<TodayUiState> = _uiState
 
     init {
-        observeDay(LocalDateUtil.todayLocalDay())
+        _uiState
+            .map { Triple(it.day, it.query, it.filter) }
+            .flatMapLatest { (day, query, filter) ->
+                repository.dayEntries(day, query, filter)
+                    .catch { emit(emptyList()) }
+                    .map { entries -> day to entries }
+            }
+            .onEach { (day, entries) ->
+                _uiState.value = _uiState.value.copy(day = day, entries = entries, isLoading = false)
+            }
+            .launchIn(viewModelScope)
     }
 
-    private fun observeDay(day: Int) {
-        viewModelScope.launch {
-            repository.dayEntries(day, _uiState.value.query, _uiState.value.filter)
-                .catch { _uiState.value = _uiState.value.copy(day = day, isLoading = false) }
-                .collect { entries ->
-                    _uiState.value = _uiState.value.copy(day = day, entries = entries, isLoading = false)
-                }
-        }
+    fun setDay(day: Int) {
+        _uiState.value = _uiState.value.copy(day = day)
     }
 
     fun setQuery(query: String) {
         _uiState.value = _uiState.value.copy(query = query)
-        observeDay(_uiState.value.day)
     }
 
     fun setFilter(filter: EntryFilter) {
         _uiState.value = _uiState.value.copy(filter = filter)
-        observeDay(_uiState.value.day)
     }
 }

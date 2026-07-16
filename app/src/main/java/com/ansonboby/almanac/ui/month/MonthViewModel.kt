@@ -10,7 +10,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 data class MonthUiState(
@@ -29,36 +32,33 @@ class MonthViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MonthUiState())
     val uiState: StateFlow<MonthUiState> = _uiState
 
-    init { observe() }
+    init {
+        _uiState
+            .map { Triple(it.centerDay, it.query, it.filter) }
+            .flatMapLatest { (center, query, filter) ->
+                repository.month(center, query, filter)
+                    .catch { emit(emptyList()) }
+                    .map { summaries -> center to summaries }
+            }
+            .onEach { (center, list) ->
+                _uiState.value = _uiState.value.copy(
+                    centerDay = center,
+                    summaries = list.associateBy { it.day },
+                    isLoading = false,
+                )
+            }
+            .launchIn(viewModelScope)
+    }
 
     fun goToMonth(centerDay: Int) {
         _uiState.value = _uiState.value.copy(centerDay = centerDay)
-        observe()
     }
 
     fun setQuery(query: String) {
         _uiState.value = _uiState.value.copy(query = query)
-        observe()
     }
 
     fun setFilter(filter: EntryFilter) {
         _uiState.value = _uiState.value.copy(filter = filter)
-        observe()
-    }
-
-    private fun observe() {
-        val center = _uiState.value.centerDay
-        val query = _uiState.value.query
-        val filter = _uiState.value.filter
-        viewModelScope.launch {
-            repository.month(center, query, filter)
-                .catch { _uiState.value = _uiState.value.copy(isLoading = false) }
-                .collect { list ->
-                    _uiState.value = _uiState.value.copy(
-                        summaries = list.associateBy { it.day },
-                        isLoading = false,
-                    )
-                }
-        }
     }
 }

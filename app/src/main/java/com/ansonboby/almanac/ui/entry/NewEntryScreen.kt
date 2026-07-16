@@ -35,6 +35,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,6 +75,7 @@ fun NewEntryScreen(
     val context = LocalContext.current
     val storage = remember { FileStorage.get(context) }
     var showPhotoChooser by remember { mutableStateOf(false) }
+    var pendingCameraRequest by remember { mutableStateOf(false) }
     val stampScope = rememberCoroutineScope()
     val stampScale = remember { Animatable(1f) }
     val stampRotation = remember { Animatable(0f) }
@@ -103,6 +105,24 @@ fun NewEntryScreen(
         storage.uriForFile(file).also { uri ->
             pendingCaptureUri = uri
             takePictureLauncher.launch(uri)
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        showPhotoChooser = false
+        if (granted) openCamera() else Toast.makeText(context, R.string.new_entry_camera_denied, Toast.LENGTH_SHORT).show()
+    }
+
+    fun requestCamera() {
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+
+    LaunchedEffect(pendingCameraRequest) {
+        if (pendingCameraRequest) {
+            pendingCameraRequest = false
+            requestCamera()
         }
     }
 
@@ -265,7 +285,7 @@ fun NewEntryScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showPhotoChooser = false; openCamera() }) {
+                TextButton(onClick = { showPhotoChooser = false; pendingCameraRequest = true }) {
                     Text(stringResource(R.string.new_entry_capture).uppercase(), style = StampType.counter, color = FieldLedgerPalette.Brass)
                 }
             },

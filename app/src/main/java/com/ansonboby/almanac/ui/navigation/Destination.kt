@@ -3,7 +3,9 @@ package com.ansonboby.almanac.ui.navigation
 /** All destinations in the app. */
 sealed class Destination(val route: String) {
     data object Onboarding : Destination("onboarding")
-    data object Today : Destination("today")
+    data object Today : Destination("today?day={day}") {
+        fun create(day: Int? = null) = if (day == null) "today" else "today?day=$day"
+    }
     data object Month : Destination("month")
     data object Habits : Destination("habits")
     data object Insights : Destination("insights")

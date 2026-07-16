@@ -280,7 +280,7 @@ private fun HabitRow(
             text = "${item.streak.toString().padStart(2, '0')}d",
             style = StampType.counter,
             color = FieldLedgerPalette.Moss,
-            modifier = Modifier.clickable(onClick = onArchive).padding(start = 10.dp),
+            modifier = Modifier.padding(start = 10.dp),
         )
     }
     HorizontalDivider(color = FieldLedgerPalette.Moss.copy(alpha = 0.4f), thickness = 1.dp)

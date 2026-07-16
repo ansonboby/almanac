@@ -73,3 +73,30 @@ User dumped `App to-do list features.html` (raw complaints) and pointed at `.pla
 - `strings.xml`: removed orphaned `onboarding_camera_title`, `onboarding_camera_body`, `new_entry_grant`, `new_entry_deny`, `new_entry_camera_permission_title`, `new_entry_camera_permission_body`.
 - **On-device re-verified** (fresh uninstall + install, `almanac_pixel35` headless): onboarding now lands straight on Today (no camera primer); NewEntry Photo chooser opens "Add a photo" (Capture / From gallery); From gallery launches system `PhotoPickerGetContentActivity`; back returns to NewEntry with no crash; Month grid, Habits sheet + labeled color swatches, Insights bordered cards, Settings single appearance control all render; no FINIS OPUS anywhere.
 - `assembleDebug` + `lintDebug` + `testDebugUnitTest` all BUILD SUCCESSFUL.
+
+## 16. Permission-request fixes + NavCrash fix + VM Flow refactor (2026-07-17)
+Root cause of the user's real-device crash ("app crashed, didn't ask for permission"):
+- Only `ACCESS_FINE_LOCATION` was requested at runtime. `CAMERA` (NewEntry Capture) and `POST_NOTIFICATIONS` (Settings reminder) were never requested, so tapping Capture did nothing / silently failed and the reminder silently no-op'd.
+- `AlmanacNavHost.kt` used a **nullable Int navArgument** for `day` (`NavType.IntType` + `nullable=true`), which throws `IllegalArgumentException: integer does not allow nullable values` at NavHost build → launch-time crash/ANR. Fixed by using a non-nullable arg with `defaultValue = -1` (sentinel) and parsing `-1 -> null`.
+
+### Permission fixes
+- `NewEntryScreen.kt`: added `cameraPermissionLauncher` (`RequestPermission` for `CAMERA`) + `requestCamera()`; CAPTURE chooser button requests CAMERA before opening system camera. Dismiss the chooser dialog first, then fire the request via a `LaunchedEffect(pendingCameraRequest)` flag to avoid the AlertDialog-dismiss/launcher race. Added `new_entry_camera_denied` toast string.
+- `SettingsScreen.kt`: added `notificationPermissionLauncher` (`POST_NOTIFICATIONS`); reminder `SwitchRow` requests `POST_NOTIFICATIONS` on API 33+ before enabling. Added `settings_reminder_permission_denied` string + `Toast`/`Manifest` imports.
+- `ACCESS_FINE_LOCATION` request on geotag toggle unchanged (already correct).
+
+### Audit fixes (code-level)
+- **P1** Month→day now opens `Today?day=N` (was wrongly routing to `EntryDetail`). `Destination.Today.create(day)`, `TodayViewModel.setDay()`, `TodayScreen(day)` + `LaunchedEffect`. Verified on-device: tapping day 15 opens "July 15, 2026" Today, not "Entry not found".
+- **P2** `TodayViewModel`/`MonthViewModel` refactored to a single `flatMapLatest` chain over a `(day/center, query, filter)` StateFlow, `launchIn(viewModelScope)`. `setQuery/setFilter/setDay/goToMonth` now only update StateFlow (no stacked collectors / leak).
+- **P3** `HabitsViewModel.save()` preserves `createdAt` + `archived` when editing (loads existing via new `HabitRepository.loadHabit(id)`); previously reset `createdAt` to now on every edit (broke streaks).
+- **P5** `HabitsScreen` streak `Text` made non-clickable (was calling `onArchive` on tap — tapping the streak archived the habit). Archive kept via explicit menu.
+
+### On-device verification (fresh uninstall + install, almanac_pixel35 headless)
+- No launch crash/ANR (the nullable-NavArg crash is gone).
+- Onboarding → Today → Month tap day 15 → Today for that day ✓.
+- NewEntry → Photo → CAPTURE → CAMERA permission dialog ("While using the app"/"Only this time"/"Don't allow") → grant → system camera → shutter → Done → photo returns to NewEntry ✓. Deny → returns to chooser, no crash ✓.
+- Settings → End-of-day reminder toggle → POST_NOTIFICATIONS dialog → Allow → granted, no crash ✓.
+- Habits/Insights/Month/Settings all render.
+
+### Build gates
+- `assembleDebug` + `lintDebug` + `testDebugUnitTest` — all BUILD SUCCESSFUL.
+- NOTE: the helper `tap.sh` mis-reports tap coordinates (tapped 540,1191 instead of real 790,1367 for the CAPTURE button); use `tapnode.sh` (exact-bounds tap) for future on-device work.

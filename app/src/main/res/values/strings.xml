@@ -39,6 +39,7 @@
     <string name="new_entry_mood">Mood</string>
     <string name="new_entry_capture">Capture</string>
     <string name="new_entry_from_gallery">From gallery</string>
+    <string name="new_entry_camera_denied">Camera permission is needed to take a photo. You can also use the gallery.</string>
     <string name="new_entry_photo_source_title">Add a photo</string>
     <string name="new_entry_photo_source_body">Capture a fresh specimen with the camera, or pull one from your gallery.</string>
     <string name="new_entry_caption_hint">A line about this specimen…</string>
@@ -122,6 +123,7 @@
     <string name="settings_reminders">Reminders</string>
     <string name="settings_reminder_toggle">End-of-day reminder</string>
     <string name="settings_reminder_body">A quiet nudge to ink the day\'s log.</string>
+    <string name="settings_reminder_permission_denied">Notifications are off — enable them in Settings to receive reminders.</string>
     <string name="settings_reminder_time">Reminder time</string>
     <string name="settings_data">Data management</string>
     <string name="settings_backup">Backup Ledger</string>

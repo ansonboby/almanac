@@ -118,6 +118,7 @@ class HabitsViewModel @Inject constructor(
         val title = s.title.trim()
         if (title.isBlank()) return
         viewModelScope.launch {
+            val existing = s.editingId?.let { repository.loadHabit(it) }
             val habit = Habit(
                 id = s.editingId ?: 0,
                 title = title,
@@ -125,7 +126,8 @@ class HabitsViewModel @Inject constructor(
                 frequency = s.frequencyKey,
                 customDays = if (s.frequencyKey == HabitFrequency.Custom.key) s.customDays else null,
                 tint = s.tint,
-                createdAt = System.currentTimeMillis(),
+                createdAt = existing?.createdAt ?: System.currentTimeMillis(),
+                archived = existing?.archived ?: false,
             )
             if (s.editingId == null) repository.addHabit(habit) else repository.updateHabit(habit)
             _uiState.value = _uiState.value.copy(editorOpen = false)

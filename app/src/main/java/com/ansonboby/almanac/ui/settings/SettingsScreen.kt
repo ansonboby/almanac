@@ -1,7 +1,9 @@
 package com.ansonboby.almanac.ui.settings
 
 import android.app.TimePickerDialog
+import android.Manifest
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -83,6 +85,16 @@ fun SettingsScreen(
         ActivityResultContracts.OpenDocument(),
     ) { uri: Uri? -> uri?.let { viewModel.restore(it) } }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            viewModel.setReminder(true, remHour, remMinute)
+        } else {
+            Toast.makeText(context, R.string.settings_reminder_permission_denied, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -125,7 +137,16 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_reminder_toggle),
                 subtitle = stringResource(R.string.settings_reminder_body),
                 checked = reminderOn,
-                onChecked = { viewModel.setReminder(it, remHour, remMinute) },
+                onChecked = { on ->
+                    if (on && android.os.Build.VERSION.SDK_INT >= 33 &&
+                        context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                        != android.content.pm.PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        viewModel.setReminder(on, remHour, remMinute)
+                    }
+                },
             )
             if (reminderOn) {
                 Row(

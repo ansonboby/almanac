@@ -65,16 +65,24 @@ fun AlmanacNavHost(
             startDestination = Destination.Today.route,
             modifier = Modifier.fillMaxSize().padding(padding),
         ) {
-            composable(Destination.Today.route) {
+            composable(
+                Destination.Today.route,
+                arguments = listOf(navArgument("day") {
+                    type = androidx.navigation.NavType.IntType
+                    defaultValue = -1
+                }),
+            ) {
+                val dayArg = it.arguments?.getInt("day", -1) ?: -1
                 TodayScreen(
                     onNewEntry = { navController.navigate(Destination.NewEntry.route) },
                     onOpenEntry = { id -> navController.navigate(Destination.EntryDetail.create(id)) },
                     onToggleTheme = onToggleTheme,
+                    day = dayArg.takeIf { it >= 0 },
                 )
             }
             composable(Destination.Month.route) {
                 MonthScreen(
-                    onOpenDay = { day -> navController.navigate(Destination.EntryDetail.create(day.toLong())) },
+                    onOpenDay = { day -> navController.navigate(Destination.Today.create(day)) },
                     onToggleTheme = onToggleTheme,
                 )
             }

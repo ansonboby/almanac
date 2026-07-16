@@ -41,9 +41,13 @@ fun TodayScreen(
     onNewEntry: () -> Unit,
     onOpenEntry: (Long) -> Unit,
     onToggleTheme: () -> Unit,
+    day: Int? = null,
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    androidx.compose.runtime.LaunchedEffect(day) {
+        day?.let { viewModel.setDay(it) }
+    }
     val dayLabel = LocalDateUtil.fullDate(state.day)
 
     Scaffold(
