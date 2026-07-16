@@ -105,8 +105,14 @@ fun computeStreak(habit: Habit, loggedDays: Set<Int>, today: Int): Int {
     // Allow today to be incomplete without breaking the streak.
     if (!(isDue(day) && day in loggedDays)) day -= 1
 
+    // Don't count days before the habit existed.
+    val createdDay = LocalDateUtil.localDay(
+        java.time.LocalDate.ofEpochDay(habit.createdAt / 86_400_000L),
+    )
+    val floor = maxOf(LocalDateUtil.minDay(), createdDay)
+
     var streak = 0
-    while (day >= LocalDateUtil.minDay()) {
+    while (day >= floor) {
         if (!isDue(day)) {
             day -= 1
             continue

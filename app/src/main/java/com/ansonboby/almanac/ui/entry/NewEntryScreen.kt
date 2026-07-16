@@ -178,18 +178,22 @@ fun NewEntryScreen(
                 )
             }
 
-            // Content by type
-            when {
-                state.photoUri != null -> {
+            // Content by type — driven by the selected tab, so switching tabs
+            // always swaps the editor (a photo + Mood tab = show Mood picker).
+            when (state.type) {
+                EntryType.PHOTO -> {
                     PhotoPreview(
-                        uri = state.photoUri!!,
+                        uri = state.photoUri,
                         caption = state.caption,
-                        onCaptionChange = { viewModel.setPhoto(state.photoUri!!, it) },
+                        onCaptionChange = { viewModel.setPhoto(state.photoUri ?: return@PhotoPreview, it) },
                         onRetake = { viewModel.clearPhoto(); showPhotoChooser = true },
                         onGallery = { galleryLauncher.launch("image/*") },
                     )
                 }
-                state.type == EntryType.TEXT || (state.type == null && state.text.isNotBlank()) -> {
+                EntryType.MOOD -> {
+                    MoodPicker(selected = state.moodScore) { viewModel.setMood(it) }
+                }
+                else -> {
                     LedgerTextField(
                         value = state.text,
                         onValueChange = viewModel::setText,
@@ -200,9 +204,6 @@ fun NewEntryScreen(
                         onValueChange = viewModel::setTags,
                         hint = stringResource(R.string.new_entry_tags_hint),
                     )
-                }
-                state.type == EntryType.MOOD -> {
-                    MoodPicker(selected = state.moodScore) { viewModel.setMood(it) }
                 }
             }
 
@@ -387,7 +388,7 @@ private fun MoodPicker(selected: Int?, onSelect: (Int) -> Unit) {
 
 @Composable
 private fun PhotoPreview(
-    uri: String,
+    uri: String?,
     caption: String,
     onCaptionChange: (String) -> Unit,
     onRetake: () -> Unit,

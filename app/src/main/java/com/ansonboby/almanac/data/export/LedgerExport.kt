@@ -133,8 +133,17 @@ class LedgerExport @Inject constructor(
                     entry.name == "almanac.db" ->
                         FileOutputStream(dbFile).use { zis.copyTo(it) }
                     entry.name.startsWith("photos/") -> {
+                        // Guard against Zip Slip: only accept a bare file name
+                        // (no path separators) and verify it resolves inside photosDir.
                         val name = entry.name.removePrefix("photos/")
-                        FileOutputStream(File(photosDir, name)).use { zis.copyTo(it) }
+                            .substringAfterLast('/')
+                            .substringAfterLast('\\')
+                        if (name.isNotBlank() && !name.contains("..")) {
+                            val out = File(photosDir, name).canonicalFile
+                            if (out.canonicalPath == File(photosDir, name).canonicalPath) {
+                                FileOutputStream(out).use { zis.copyTo(it) }
+                            }
+                        }
                     }
                 }
                 zis.closeEntry()

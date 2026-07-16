@@ -59,7 +59,7 @@ fun MonthScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val firstOfMonth = LocalDateUtil.toLocalDate(LocalDateUtil.startOfMonth(state.centerDay))
     val daysInMonth = firstOfMonth.lengthOfMonth()
-    val leadingBlanks = (firstOfMonth.dayOfWeek.value % 7) // Mon=1..Sun=7 -> 0..6
+    val leadingBlanks = (firstOfMonth.dayOfWeek.value - 1) // Mon=1 -> 0 blanks .. Sun=7 -> 6 blanks
     val monthLabel = LocalDateUtil.monthLabel(state.centerDay)
 
     Scaffold(

@@ -119,3 +119,11 @@ Fixes:
 - NewEntry photo mode: bottom content ends at STAMP INTO LEDGER y~1065, well clear; no app node extends under nav bar ✓.
 - Habits "New habit" sheet: scrolled to bottom, Save ends at y~2066, Color/Dusty Rose at y~1900 — clear of nav bar 2337 ✓.
 - `assembleDebug` + `lintDebug` + `testDebugUnitTest` all BUILD SUCCESSFUL.
+
+## 18. Final bug fixes + project archived (2026-07-17)
+Final fixes before archiving:
+- `MonthScreen.kt`: `leadingBlanks` corrected from `dayOfWeek.value % 7` to `dayOfWeek.value - 1` (Mon=0 blanks). Month grid alignment bug.
+- `HabitRepository.kt`: `computeStreak()` loop now bounded by the habit's `createdAt` day instead of scanning back to minDay() (year 2000) every call.
+- `LedgerExport.kt`: `unzipToLedger()` hardened against Zip Slip (strips path separators, rejects "..", verifies resolved file stays inside photosDir).
+- `NewEntryScreen.kt`: content editor now driven by `state.type` tab (Photo/Text/Mood) instead of `photoUri != null` first — fixes Mood tab doing nothing after a photo was taken.
+- All gates green. User decided not to use the app; repo archived on GitHub, app uninstalled from device.
